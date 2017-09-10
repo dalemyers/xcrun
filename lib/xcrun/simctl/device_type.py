@@ -1,5 +1,11 @@
 """Handles simulator device types."""
 
+import xcrun.simctl.listall
+
+class DeviceTypeNotFoundError(Exception):
+    """Raised when a requested device type is not found."""
+    pass
+
 class DeviceType(object):
     """Represents a device type for the iOS simulator."""
 
@@ -28,3 +34,11 @@ def from_xcrun_info(info):
     for device_type_info in info:
         device_types.append(DeviceType(device_type_info))
     return device_types
+
+def from_id(identifier):
+    """Get a device type from its identifier."""
+    device_types = xcrun.simctl.listall.device_types()
+    for device_type in device_types:
+        if device_type.identifier == identifier:
+            return device_type
+    raise DeviceTypeNotFoundError("No device type matching identifier: " + identifier)

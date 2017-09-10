@@ -10,6 +10,9 @@ class MultipleMatchesException(Exception):
     """Raised when we have multiple matches, but only expect a single one."""
     pass
 
+class DeviceNotFoundError(Exception):
+    """Raised when a requested device is not found."""
+    pass
 
 class Device(object):
     """Represents a device for the iOS simulator."""
@@ -63,6 +66,10 @@ class Device(object):
         """Terminate an application by identifier."""
         xcrun.simctl.terminate(self, app_identifier)
 
+    def delete(self):
+        """Delete the device."""
+        xcrun.simctl.delete_device(self)
+
     def __str__(self):
         """Return the string representation of the object."""
         return self.name + ": " + self.udid
@@ -83,6 +90,19 @@ def from_xcrun_info(info):
             devices.append(Device(device_info, runtime_key))
         all_devices[runtime_key] = devices
     return all_devices
+
+
+def from_identifier(identifier):
+    """Create a new device from the xcrun info."""
+    all_devices = xcrun.simctl.listall.devices()
+    print("Looking for: -->" + identifier + "<--")
+    for _, devices in all_devices.iteritems():
+        for device in devices:
+            print("Checking: -->" + str(device.udid) + "<--")
+            if device.udid == identifier:
+                return device
+
+    raise DeviceNotFoundError("No device with ID: " + identifier)
 
 
 def from_name(name, runtime=None):
@@ -127,3 +147,12 @@ def from_name(name, runtime=None):
         raise MultipleMatchesException("Multiple device matches even with runtime supplied")
 
     return matching_devices[0][0]
+
+def create(name, device_type, runtime):
+    """Create a new device."""
+    device_id = xcrun.simctl.create_device(name, device_type, runtime)
+    return from_identifier(device_id)
+
+def delete_unavailable():
+    """Delete all unavailable devices."""
+    xcrun.simctl.delete_unavailable_devices()

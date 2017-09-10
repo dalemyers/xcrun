@@ -13,6 +13,7 @@ import xcrun
 
 app_id = "io.myers.testapp"
 iOS10_3 = xcrun.simctl.runtime.from_id("com.apple.CoreSimulator.SimRuntime.iOS-10-3")
+iPhone7Type = xcrun.simctl.device_type.from_id("com.apple.CoreSimulator.SimDeviceType.iPhone-7")
 iPhone7 = xcrun.simctl.device.from_name("iPhone 7", iOS10_3)
 
 #print iPhone7.get_app_container(app_id)
@@ -21,3 +22,7 @@ iPhone7 = xcrun.simctl.device.from_name("iPhone 7", iOS10_3)
 
 #iPhone7.terminate(app_id)
 
+
+test_device = xcrun.simctl.device.create("xcrun test device", iPhone7Type, iOS10_3)
+print test_device
+test_device.delete()

@@ -69,3 +69,20 @@ def terminate(device, app_identifier):
     """Terminate an application by identifier on a device."""
     command = 'terminate "%s" "%s"' % (device.udid, app_identifier)
     _run_command(command)
+
+def create_device(name, device_type, runtime):
+    """Create a new device."""
+    command = 'create "%s" "%s" "%s"' % (name, device_type.identifier, runtime.identifier)
+    device_id = _run_command(command)
+
+    # The device ID has a new line at the end. Strip it when returning.
+    return device_id[:-1]
+
+def delete_device(device):
+    """Delete a device."""
+    command = 'delete "%s"' % (device.udid)
+    _run_command(command)
+
+def delete_unavailable_devices():
+    """Delete all unavailable devices."""
+    _run_command('delete unavailable')
