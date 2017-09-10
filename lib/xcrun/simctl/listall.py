@@ -1,37 +1,39 @@
-#!/usr/bin/env python3
+"""Used to run `xcrun simctl list X` commands."""
 
 from __future__ import print_function
 
 import json
-import os
 import subprocess
-import sys
 
-import runtime
-import device_type
-import device
-import device_pair
+import xcrun.simctl.runtime
+import xcrun.simctl.device_type
+import xcrun.simctl.device
+import xcrun.simctl.device_pair
 
 def _list(item):
-	"""Run an `xcrun simctl` command with JSON output."""
-	full_command = "xcrun simctl list %s --json" % (item,)
-	# Deliberately don't catch the exception - we want it to bubble up
-	output = subprocess.check_output(full_command, universal_newlines=True, shell=True)
-	return json.loads(output)
+    """Run an `xcrun simctl` command with JSON output."""
+    full_command = "xcrun simctl list %s --json" % (item,)
+    # Deliberately don't catch the exception - we want it to bubble up
+    output = subprocess.check_output(full_command, universal_newlines=True, shell=True)
+    return json.loads(output)
 
 def runtimes():
-	runtime_info = _list("runtimes")
-	return runtime.Runtime.create_from_xcrun_info(runtime_info)
+    """Return all available runtimes."""
+    runtime_info = _list("runtimes")
+    return xcrun.simctl.runtime.from_xcrun_info(runtime_info)
 
 
 def device_types():
-	device_type_info = _list("devicetypes")
-	return device_type.DeviceType.create_from_xcrun_info(device_type_info)
+    """Return all available device types."""
+    device_type_info = _list("devicetypes")
+    return xcrun.simctl.device_type.from_xcrun_info(device_type_info)
 
 def devices():
-	device_info = _list("devices")
-	return device.Device.create_from_xcrun_info(device_info)
+    """Return all available devices."""
+    device_info = _list("devices")
+    return xcrun.simctl.device.from_xcrun_info(device_info)
 
 def device_pairs():
-	device_pair_info = _list("pairs")
-	return device_pair.DevicePair.create_from_xcrun_info(device_pair_info)
+    """Return all available device pairs."""
+    device_pair_info = _list("pairs")
+    return xcrun.simctl.device_pair.from_xcrun_info(device_pair_info)
