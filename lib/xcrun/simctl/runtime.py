@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import listall
 import simctl
 
 class RuntimeNotFoundError(Exception):
@@ -46,3 +47,13 @@ class Runtime(object):
 	def __repr__(self):
 		"""Return the raw representation of the object."""
 		return str(self.raw_info)
+
+def from_id(identifier):
+	# Get all runtimes
+	all_runtimes = listall.runtimes()
+
+	for runtime in all_runtimes:
+		if runtime.identifier == identifier:
+			return runtime
+	
+	return None
