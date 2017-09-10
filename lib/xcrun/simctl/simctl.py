@@ -40,3 +40,19 @@ def getenv(device, variable_name):
 	variable = _run_command(command)
 	# The variable has an extra new line at the end, so remove it when returning
 	return variable[:-1]
+
+def addmedia(device, paths):
+	if isinstance(paths, str):
+		paths = [paths]
+
+	if len(paths) == 0:
+		return
+
+	command = 'addmedia "%s" ' % (device.udid)
+
+	# Now we need to add the paths
+	quoted_paths = ['"' + path + '"' for path in paths]
+	paths_arg = " ".join(quoted_paths)
+	command += paths_arg
+
+	_run_command(command)

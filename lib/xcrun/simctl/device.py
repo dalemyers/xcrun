@@ -65,6 +65,9 @@ class Device(object):
 	def getenv(self, variable_name):
 		return simctl.getenv(self, variable_name)
 
+	def addmedia(self, paths):
+		return simctl.addmedia(self, paths)
+
 	def __str__(self):
 		"""Return the string representation of the object."""
 		return self.name + ": " + self.udid

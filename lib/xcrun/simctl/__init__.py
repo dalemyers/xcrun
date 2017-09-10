@@ -13,7 +13,6 @@ from simctl import *
 #	boot                Boot a device.
 #	shutdown            Shutdown a device.
 #	rename              Rename a device.
-#	addmedia            Add photos, live photos, or videos to the photo library of a device.
 #	install             Install an app on a device.
 #	uninstall           Uninstall an app from a device.
 #	launch              Launch an application by identifier on a device.
@@ -30,6 +29,7 @@ from simctl import *
 
 # DONE:
 
+#	addmedia            Add photos, live photos, or videos to the photo library of a device
 #	get_app_container   Print the path of the installed app's container
 #	getenv              Print an environment variable from a running device.
 #	icloud_sync         Trigger iCloud sync on a device.
