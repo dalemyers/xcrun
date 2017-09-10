@@ -68,6 +68,9 @@ class Device(object):
 	def addmedia(self, paths):
 		return simctl.addmedia(self, paths)
 
+	def terminate(self, app_identifier):
+		simctl.terminate(self, app_identifier)
+
 	def __str__(self):
 		"""Return the string representation of the object."""
 		return self.name + ": " + self.udid

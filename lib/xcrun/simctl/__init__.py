@@ -17,7 +17,6 @@ from simctl import *
 #	uninstall           Uninstall an app from a device.
 #	launch              Launch an application by identifier on a device.
 #	terminate           Terminate an application by identifier on a device.
-#	spawn               Spawn a process on a device.
 
 # Advanced:
 
@@ -25,6 +24,7 @@ from simctl import *
 #	pbcopy              Copy standard input onto the device pasteboard.
 #	pbpaste             Print the contents of the device's pasteboard to standard output.
 #	io                  Set up a device IO operation.
+#	spawn               Spawn a process on a device.
 
 
 # DONE:

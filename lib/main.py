@@ -18,3 +18,5 @@ iPhone7 = xcrun.simctl.device.from_name("iPhone 7", iOS10_3)
 #iPhone7.openurl("http://google.com")
 #iPhone7.addmedia(["/Users/dalemy/Desktop/Screen Shot 2017-09-07 at 22.22.24.png"])
 
+iPhone7.terminate("com.microsoft.Office.Outlook-wip")
+

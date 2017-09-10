@@ -56,3 +56,7 @@ def addmedia(device, paths):
 	command += paths_arg
 
 	_run_command(command)
+
+def terminate(device, app_identifier):
+	command = 'terminate "%s" "%s"' % (device.udid, app_identifier)
+	_run_command(command)
