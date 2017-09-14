@@ -1,20 +1,18 @@
 #!/usr/bin/env python
 
+import time
+
 import xcrun
 
-#runtimes = xcrun.simctl.listall.runtimes()
-#for runtime in runtimes:
-#    print runtime
+iOS10_2 = xcrun.simctl.runtime.from_id("com.apple.CoreSimulator.SimRuntime.iOS-10-2")
+iOS10_3 = xcrun.simctl.runtime.from_id("com.apple.CoreSimulator.SimRuntime.iOS-10-3")
 
-#devices = xcrun.simctl.list.devices()
-#for runtime_id, runtime_devices in devices.iteritems():
-#    for device in runtime_devices:
-#        print runtime_id + ": " + str(device)
+iPhone7Type = xcrun.simctl.device_type.from_id("com.apple.CoreSimulator.SimDeviceType.iPhone-7")
+
+iPhone7 = xcrun.simctl.device.from_name("iPhone 7", iOS10_3)
 
 app_id = "io.myers.testapp"
-iOS10_3 = xcrun.simctl.runtime.from_id("com.apple.CoreSimulator.SimRuntime.iOS-10-3")
-iPhone7Type = xcrun.simctl.device_type.from_id("com.apple.CoreSimulator.SimDeviceType.iPhone-7")
-iPhone7 = xcrun.simctl.device.from_name("iPhone 7", iOS10_3)
+
 
 #print iPhone7.get_app_container(app_id)
 #iPhone7.openurl("http://google.com")
@@ -23,6 +21,22 @@ iPhone7 = xcrun.simctl.device.from_name("iPhone 7", iOS10_3)
 #iPhone7.terminate(app_id)
 
 
-test_device = xcrun.simctl.device.create("xcrun test device", iPhone7Type, iOS10_3)
-print test_device
-test_device.delete()
+#test_device = xcrun.simctl.device.create("xcrun test device", iPhone7Type, iOS10_3)
+#print test_device
+#test_device.delete()
+
+
+# Upgrade flow
+upgrade_device = xcrun.simctl.device.create("Upgrade Device", iPhone7Type, iOS10_2)
+print upgrade_device.__repr__()
+
+print "Waiting..."
+time.sleep(10)
+
+upgrade_device.upgrade(iOS10_3)
+print upgrade_device.__repr__()
+
+print "Waiting..."
+time.sleep(10)
+
+upgrade_device.delete()

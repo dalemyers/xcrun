@@ -86,3 +86,28 @@ def delete_device(device):
 def delete_unavailable_devices():
     """Delete all unavailable devices."""
     _run_command('delete unavailable')
+
+def rename_device(device, name):
+    """Renames a device."""
+    command = 'rename "%s" "%s"' % (device.udid, name)
+    _run_command(command)
+
+def boot_device(device):
+    """Boots a device."""
+    command = 'boot "%s"' % (device.udid,)
+    _run_command(command)
+
+def shutdown_device(device):
+    """Shuts down a device."""
+    command = 'shutdown "%s"' % (device.udid,)
+    _run_command(command)
+
+def erase_device(device):
+    """Erase a device's contents and settings.."""
+    command = 'erase "%s"' % (device.udid,)
+    _run_command(command)
+
+def upgrade_device(device, runtime):
+    """Upgrade a device to a newer runtime."""
+    command = 'upgrade "%s" "%s"' % (device.udid, runtime.identifier)
+    _run_command(command)

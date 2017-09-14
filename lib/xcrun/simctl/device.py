@@ -17,11 +17,11 @@ class DeviceNotFoundError(Exception):
 class Device(object):
     """Represents a device for the iOS simulator."""
 
-    def __init__(self, device_info, runtime_key):
+    def __init__(self, device_info, runtime_name):
         """Construct a Device object from xcrun output and a runtime key.
 
         device_info: The dictionary representing the xcrun output for a device.
-        runtime_key: A unique key representing the runtime that the device uses.
+        runtime_name: The name of the runtime that the device uses.
         """
 
         self.raw_info = device_info
@@ -29,13 +29,13 @@ class Device(object):
         self.availability = device_info["availability"]
         self.name = device_info["name"]
         self.udid = device_info["udid"]
-        self.runtime_key = runtime_key
+        self.runtime_name = runtime_name
         self._runtime = None
 
     def runtime(self):
         """Return the runtime of the device."""
         if self._runtime is None:
-            self._runtime = xcrun.simctl.runtime.from_id(self.runtime_key)
+            self._runtime = xcrun.simctl.runtime.from_id(self.runtime_name)
         return self._runtime
 
     def get_app_container(self, app_identifier, container=None):
@@ -70,25 +70,47 @@ class Device(object):
         """Delete the device."""
         xcrun.simctl.delete_device(self)
 
+    def rename(self, name):
+        """Rename the device."""
+        xcrun.simctl.rename_device(self, name)
+
+    def boot(self):
+        """Boot the device."""
+        xcrun.simctl.boot_device(self)
+
+    def shutdown(self):
+        """Shutdown the device."""
+        xcrun.simctl.shutdown_device(self)
+
+    def erase(self):
+        """Erases the device's contents and settings."""
+        xcrun.simctl.erase_device(self)
+
+    def upgrade(self, runtime):
+        """Upgrade the device to a newer runtime."""
+        xcrun.simctl.upgrade_device(self, runtime)
+        self._runtime = None
+        self.runtime_name = runtime.name
+
     def __str__(self):
         """Return the string representation of the object."""
         return self.name + ": " + self.udid
 
     def __repr__(self):
         """Return the raw representation of the object."""
-        return str([self.raw_info, self.runtime_key])
+        return str([self.raw_info, self.runtime_name])
 
 
 def from_xcrun_info(info):
     """Create a new device from the xcrun info."""
     runtime_map = info["devices"]
     all_devices = {}
-    for runtime_key in runtime_map.keys():
-        runtime_devices_info = runtime_map[runtime_key]
+    for runtime_name in runtime_map.keys():
+        runtime_devices_info = runtime_map[runtime_name]
         devices = []
         for device_info in runtime_devices_info:
-            devices.append(Device(device_info, runtime_key))
-        all_devices[runtime_key] = devices
+            devices.append(Device(device_info, runtime_name))
+        all_devices[runtime_name] = devices
     return all_devices
 
 
@@ -98,7 +120,6 @@ def from_identifier(identifier):
     print("Looking for: -->" + identifier + "<--")
     for _, devices in all_devices.iteritems():
         for device in devices:
-            print("Checking: -->" + str(device.udid) + "<--")
             if device.udid == identifier:
                 return device
 
