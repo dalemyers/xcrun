@@ -65,11 +65,6 @@ def addmedia(device, paths):
 
     _run_command(command)
 
-def terminate(device, app_identifier):
-    """Terminate an application by identifier on a device."""
-    command = 'terminate "%s" "%s"' % (device.udid, app_identifier)
-    _run_command(command)
-
 def create_device(name, device_type, runtime):
     """Create a new device."""
     command = 'create "%s" "%s" "%s"' % (name, device_type.identifier, runtime.identifier)
@@ -111,3 +106,44 @@ def upgrade_device(device, runtime):
     """Upgrade a device to a newer runtime."""
     command = 'upgrade "%s" "%s"' % (device.udid, runtime.identifier)
     _run_command(command)
+
+def clone_device(device, new_name):
+    """Clone an existing device."""
+    command = 'clone "%s" "%s"' % (device.udid, new_name)
+    device_id = _run_command(command)
+
+    # The device ID has a new line at the end. Strip it when returning.
+    return device_id[:-1]
+
+def terminate_app(device, app_identifier):
+    """Terminate an application by identifier on a device."""
+    command = 'terminate "%s" "%s"' % (device.udid, app_identifier)
+    _run_command(command)
+
+def install_app(device, path):
+    """Install an application on device using the path."""
+    command = 'isntall "%s" "%s"' % (device.udid, path)
+    _run_command(command)
+
+def uninstall_app(device, app_identifier):
+    """Uninstall an application by identifier on a device."""
+    command = 'uninstall "%s" "%s"' % (device.udid, app_identifier)
+    _run_command(command)
+
+def activate_pair(device_pair):
+    """Set a given pair as active."""
+    command = 'pair_activate "%s"' % (device_pair.identifier,)
+    _run_command(command)
+
+def unpair_devices(device_pair):
+    """Terminate an application by identifier on a device."""
+    command = 'unpair "%s"' % (device_pair.identifier,)
+    _run_command(command)
+
+def pair_devices(watch, phone):
+    """Terminate an application by identifier on a device."""
+    command = 'pair "%s" "%s"' % (watch.udid, phone.udid)
+    pair_id = _run_command(command)
+
+    # The pair ID has a new line at the end. Strip it when returning.
+    return pair_id[:-1]

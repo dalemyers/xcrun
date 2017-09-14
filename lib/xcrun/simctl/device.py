@@ -14,6 +14,10 @@ class DeviceNotFoundError(Exception):
     """Raised when a requested device is not found."""
     pass
 
+class InvalidDeviceError(Exception):
+    """Raised when a device is not of the correct type."""
+    pass
+
 class Device(object):
     """Represents a device for the iOS simulator."""
 
@@ -64,7 +68,15 @@ class Device(object):
 
     def terminate(self, app_identifier):
         """Terminate an application by identifier."""
-        xcrun.simctl.terminate(self, app_identifier)
+        xcrun.simctl.terminate_app(self, app_identifier)
+
+    def uninstall(self, path):
+        """Install an application from path."""
+        xcrun.simctl.install_app(self, path)
+
+    def uninstall(self, app_identifier):
+        """Uninstall an application by identifier."""
+        xcrun.simctl.uninstall_app(self, app_identifier)
 
     def delete(self):
         """Delete the device."""
@@ -91,6 +103,32 @@ class Device(object):
         xcrun.simctl.upgrade_device(self, runtime)
         self._runtime = None
         self.runtime_name = runtime.name
+
+    def clone(self, new_name):
+        """Clone the device."""
+        return xcrun.simctl.clone_device(self, new_name)
+
+    def pair(self, other_device):
+        """Create a new watch and phone pair."""
+        watch = None
+        phone = None
+
+        if "iOS" in self.runtime_name:
+            phone = self
+
+        if "iOS" in other_device.runtime_name:
+            phone = other_device
+
+        if "watchOS" in self.runtime_name:
+            watch = self
+
+        if "watchOS" in other_device.runtime_name:
+            watch = other_device
+
+        if watch is None or phone is None:
+            raise InvalidDeviceError("One device should be a watch and the other a phone")
+
+        return xcrun.simctl.pair_devices(watch, phone)
 
     def __str__(self):
         """Return the string representation of the object."""

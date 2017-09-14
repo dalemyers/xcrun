@@ -1,5 +1,7 @@
 """Handles simulator watch device pairs."""
 
+import xcrun.simctl.simctl
+
 class DevicePair(object):
     """Represents a device pair for the iOS simulator."""
 
@@ -22,6 +24,14 @@ class DevicePair(object):
     def phone(self):
         """Return the device representing the phone in the pair."""
         raise NotImplementedError()
+
+    def unpair(self):
+        """Unpair a watch and phone pair."""
+        xcrun.simctl.unpair_devices(self)
+
+    def activate(self):
+        """Activate a pair."""
+        xcrun.simctl.activate_pair(self)
 
     def __str__(self):
         """Return the string representation of the object."""
