@@ -13,6 +13,8 @@ iPhone7 = xcrun.simctl.device.from_name("iPhone 7", iOS10_3)
 
 app_id = "io.myers.testapp"
 
+iPhone7.refresh_state()
+
 
 #print iPhone7.get_app_container(app_id)
 #iPhone7.openurl("http://google.com")
@@ -27,16 +29,16 @@ app_id = "io.myers.testapp"
 
 
 # Upgrade flow
-upgrade_device = xcrun.simctl.device.create("Upgrade Device", iPhone7Type, iOS10_2)
-print upgrade_device.__repr__()
+#upgrade_device = xcrun.simctl.device.create("Upgrade Device", iPhone7Type, iOS10_2)
+#print upgrade_device.__repr__()
 
-print "Waiting..."
-time.sleep(10)
+#print "Waiting..."
+#time.sleep(10)
 
-upgrade_device.upgrade(iOS10_3)
-print upgrade_device.__repr__()
+#upgrade_device.upgrade(iOS10_3)
+#print upgrade_device.__repr__()
 
-print "Waiting..."
-time.sleep(10)
+#print "Waiting..."
+#time.sleep(10)
 
-upgrade_device.delete()
+#upgrade_device.delete()

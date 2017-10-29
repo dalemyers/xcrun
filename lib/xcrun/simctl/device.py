@@ -28,13 +28,21 @@ class Device(object):
         runtime_name: The name of the runtime that the device uses.
         """
 
+        self.runtime_name = runtime_name
+        self._runtime = None
+        self._update_info(device_info)
+
+    def _update_info(self, device_info):
         self.raw_info = device_info
         self.state = device_info["state"]
         self.availability = device_info["availability"]
         self.name = device_info["name"]
         self.udid = device_info["udid"]
-        self.runtime_name = runtime_name
-        self._runtime = None
+
+    def refresh_state(self):
+        """Refreshes the state by consulting xcrun."""
+        device_info = xcrun.simctl.device_info(self.udid)
+        self._update_info(device_info)
 
     def runtime(self):
         """Return the runtime of the device."""
@@ -70,7 +78,7 @@ class Device(object):
         """Terminate an application by identifier."""
         xcrun.simctl.terminate_app(self, app_identifier)
 
-    def uninstall(self, path):
+    def install(self, path):
         """Install an application from path."""
         xcrun.simctl.install_app(self, path)
 

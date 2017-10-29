@@ -33,6 +33,10 @@ def devices():
     device_info = _list("devices")
     return xcrun.simctl.device.from_xcrun_info(device_info)
 
+def device_raw_info():
+    """Return all device info."""
+    return _list("devices")
+
 def device_pairs():
     """Return all available device pairs."""
     device_pair_info = _list("pairs")

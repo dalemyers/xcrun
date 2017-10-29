@@ -4,6 +4,8 @@ from __future__ import print_function
 
 import subprocess
 
+import xcrun.simctl.listall
+
 
 def _run_command(command):
     """Run an xcrun simctl command."""
@@ -11,6 +13,15 @@ def _run_command(command):
     # Deliberately don't catch the exception - we want it to bubble up
     return subprocess.check_output(full_command, universal_newlines=True, shell=True)
 
+def device_info(device_id):
+    """Return the info for the device with the matching identifier."""
+    device_info_map = xcrun.simctl.listall.device_raw_info()["devices"]
+    for operating_system in device_info_map.keys():
+        devices = device_info_map[operating_system]
+        for device in devices:
+            if device["udid"].lower() == device_id.lower():
+                return device
+    return None
 
 def get_app_container(device, app_identifier, container=None):
     """Return the path of the installed app's container on the supplied device."""
@@ -23,7 +34,6 @@ def get_app_container(device, app_identifier, container=None):
 
     # The path has an extra new line at the end, so remove it when returning
     return path[:-1]
-
 
 def openurl(device, url):
     """Open a URL in a device."""
