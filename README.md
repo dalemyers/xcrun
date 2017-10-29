@@ -12,7 +12,7 @@ With this module you can print the result of:
 
     xcrun.simctl.listall.runtimes()
 
-Most functions are on the item that they effect. So instead of running something on a device like:
+Most functions are on the item that they affect. So instead of running something on a device like:
 
     xcrun simctl do_thing <DEVICE_ID> arg1 arg2 ...
 
