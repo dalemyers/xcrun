@@ -2,24 +2,17 @@
 
 from setuptools import setup, find_packages
 from os import path
-
-
-setup(name='xcrun',
-      version='0.1',
-      description='Python wrapper around the xcrun utility',
-      url='https://github.com/dalemyers/xcrun',
-      author='Dale Myers',
-      author_email='dale@myers.io',
-      license='MIT',
-      packages=['xcrun'],
-      zip_safe=False)
-
+import sys
 
 here = path.abspath(path.dirname(__file__))
 
 # Get the long description from the README file
-with open(path.join(here, 'README.md')) as f:
-    long_description = f.read()
+try:
+    with open(path.join(here, 'README.md')) as f:
+        long_description = f.read()
+except:
+    # This happens when running tests
+    long_description = None
 
 setup(
     name='xcrun',
