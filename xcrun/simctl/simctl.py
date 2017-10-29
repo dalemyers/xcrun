@@ -132,7 +132,7 @@ def terminate_app(device, app_identifier):
 
 def install_app(device, path):
     """Install an application on device using the path."""
-    command = 'isntall "%s" "%s"' % (device.udid, path)
+    command = 'install "%s" "%s"' % (device.udid, path)
     _run_command(command)
 
 def uninstall_app(device, app_identifier):
