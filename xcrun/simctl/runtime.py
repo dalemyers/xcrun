@@ -23,6 +23,20 @@ class Runtime(object):
         self.availability = runtime_info["availability"]
         self.build_version = runtime_info["buildversion"]
 
+    def __eq__(self, other):
+        """Override the default Equals behavior"""
+        if not isinstance(other, self.__class__):
+            print "INSTANCE MISMATCH"
+            return False
+
+        print "SELF: " + str(self.raw_info)
+        print "OTHER: " + str(other.raw_info)
+        return self.raw_info == other.raw_info
+
+    def __ne__(self, other):
+        """Define a non-equality test"""
+        return not self.__eq__(other)
+
     def __str__(self):
         """Return a string representation of the runtime."""
         return "%s: %s" % (self.name, self.identifier)
@@ -45,9 +59,19 @@ def from_id(identifier):
     """Create a runtime by looking up the existing ones matching the supplied identifier."""
     # Get all runtimes
     all_runtimes = xcrun.simctl.listall.runtimes()
-
     for runtime in all_runtimes:
         if runtime.identifier == identifier:
             return runtime
 
-    return None
+    raise RuntimeNotFoundError()
+
+def from_name(name):
+    """Create a runtime by looking up the existing ones matching the supplied name."""
+    # Get all runtimes
+    all_runtimes = xcrun.simctl.listall.runtimes()
+
+    for runtime in all_runtimes:
+        if runtime.name == name:
+            return runtime
+
+    raise RuntimeNotFoundError()

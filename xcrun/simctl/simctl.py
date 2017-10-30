@@ -1,7 +1,5 @@
 """Core simctl methods."""
 
-from __future__ import print_function
-
 import subprocess
 
 import xcrun.simctl.listall
@@ -76,7 +74,7 @@ def addmedia(device, paths):
     _run_command(command)
 
 def create_device(name, device_type, runtime):
-    """Create a new device."""
+    """Create a new device, returning the identifier."""
     command = 'create "%s" "%s" "%s"' % (name, device_type.identifier, runtime.identifier)
     device_id = _run_command(command)
 

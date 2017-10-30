@@ -1,4 +1,11 @@
 {
     "editor.useTabStops": false,
-    "editor.tabSize": 4
+    "editor.tabSize": 4,
+    "search.exclude": {
+        "**/.git": true,
+        "**/.tox": true,
+        "**/.dist": true,
+        "**/.cache": true,
+        "**/xcrun.egg-info": true
+    }
 }

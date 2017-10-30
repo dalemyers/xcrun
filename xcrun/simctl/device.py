@@ -1,7 +1,5 @@
 """Represents a device for xcrun simctl."""
 
-from __future__ import print_function
-
 import xcrun.simctl.runtime
 import xcrun.simctl.listall
 import xcrun.simctl.simctl
@@ -47,7 +45,8 @@ class Device(object):
     def runtime(self):
         """Return the runtime of the device."""
         if self._runtime is None:
-            self._runtime = xcrun.simctl.runtime.from_id(self.runtime_name)
+            self._runtime = xcrun.simctl.runtime.from_name(self.runtime_name)
+
         return self._runtime
 
     def get_app_container(self, app_identifier, container=None):
@@ -163,7 +162,6 @@ def from_xcrun_info(info):
 def from_identifier(identifier):
     """Create a new device from the xcrun info."""
     all_devices = xcrun.simctl.listall.devices()
-    print("Looking for: -->" + identifier + "<--")
     for _, devices in all_devices.iteritems():
         for device in devices:
             if device.udid == identifier:

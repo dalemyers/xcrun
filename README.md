@@ -20,3 +20,7 @@ You can do this:
 
     iPhone7 = xcrun.simctl.device.from_name("iPhone 7")
     iPhone7.do_thing(arg1, arg2, ...)
+
+## Testing
+
+To run the tests, all you need to do is run `tox` (can be installed via `pip`). 

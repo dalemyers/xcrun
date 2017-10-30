@@ -1,7 +1,5 @@
 """Used to run `xcrun simctl list X` commands."""
 
-from __future__ import print_function
-
 import json
 import subprocess
 
