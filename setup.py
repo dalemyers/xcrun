@@ -16,7 +16,7 @@ except:
 
 setup(
     name='xcrun',
-    version='0.1',
+    version='0.2',
     description='Python wrapper around the xcrun utility',
     long_description=long_description,
     url='https://github.com/dalemyers/xcrun',
