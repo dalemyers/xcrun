@@ -1,7 +1,7 @@
 """Handles the runtimes for xcrun."""
 
 import xcrun.simctl.listall
-import xcrun.simctl.simctl
+import xcrun.simctl
 
 class RuntimeNotFoundError(Exception):
     """Raised when a requested runtime is not found."""
@@ -26,11 +26,8 @@ class Runtime(object):
     def __eq__(self, other):
         """Override the default Equals behavior"""
         if not isinstance(other, self.__class__):
-            print "INSTANCE MISMATCH"
             return False
 
-        print "SELF: " + str(self.raw_info)
-        print "OTHER: " + str(other.raw_info)
         return self.raw_info == other.raw_info
 
     def __ne__(self, other):

@@ -23,7 +23,7 @@ class DeviceType(object):
         return self.name + ": " + self.identifier
 
     def __repr__(self):
-        """Return a string representation of the raw_info which can be used to reconstruct the device type."""
+        """Return the string of the raw_info which can be used to reconstruct the device type."""
         return str(self.raw_info)
 
 

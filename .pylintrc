@@ -1,0 +1,30 @@
+[MASTER]
+
+# Use multiple processes to speed up Pylint.
+jobs=4
+
+[REPORTS]
+
+# Set the output format. Available formats are text, parseable, colorized, msvs
+# (visual studio) and html. You can also give a reporter class, eg
+# mypackage.mymodule.MyReporterClass.
+output-format=parseable
+
+[BASIC]
+
+# Good variable names which should always be accepted, separated by a comma
+good-names=f,i,j,k,ex,_
+
+# Include a hint for the correct naming format with invalid-name
+include-naming-hint=yes
+
+[DESIGN]
+
+# Not everything needs to have methods. Python prefers named tuples over classes
+# but classes give more flexibility in the future.
+min-public-methods=0
+
+[FORMAT]
+
+# Expected format of line ending, e.g. empty (any line ending), LF or CRLF.
+expected-line-ending-format=LF

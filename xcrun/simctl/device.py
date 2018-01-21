@@ -2,7 +2,7 @@
 
 import xcrun.simctl.runtime
 import xcrun.simctl.listall
-import xcrun.simctl.simctl
+import xcrun.simctl
 
 class MultipleMatchesException(Exception):
     """Raised when we have multiple matches, but only expect a single one."""
@@ -190,7 +190,7 @@ def from_name(name, runtime=None):
                 matching_name_devices.append((device, runtime_name))
 
     # If there were none, then we have none to return
-    if len(matching_name_devices) == 0:
+    if not matching_name_devices:
         return None
 
     # If there was 1, then we return it
@@ -204,7 +204,7 @@ def from_name(name, runtime=None):
     # Get devices where the runtime name matches
     matching_devices = [device for device in matching_name_devices if device[1] == runtime.name]
 
-    if len(matching_devices) == 0:
+    if not matching_devices:
         return None
 
     # We should only have one

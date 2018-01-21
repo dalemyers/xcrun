@@ -41,9 +41,6 @@ class TestDevice(unittest.TestCase):
                 state = "shutdown"
                 availability = "(available)"
 
-                print "DEVICE TYPE:", available_device_type
-                print "RUNTIME:", available_runtime
-
                 try:
                     device = xcrun.simctl.device.create(device_name, available_device_type, available_runtime)
                 except subprocess.CalledProcessError as ex:

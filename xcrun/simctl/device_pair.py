@@ -1,6 +1,6 @@
 """Handles simulator watch device pairs."""
 
-import xcrun.simctl.simctl
+import xcrun.simctl
 
 class DevicePair(object):
     """Represents a device pair for the iOS simulator."""
