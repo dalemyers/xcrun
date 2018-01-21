@@ -74,4 +74,4 @@ class TestRuntime(unittest.TestCase):
         """Test that we don't accidentially match on invalid names."""
         # It's unlikely that anyone would get the exact same UUID as we generate
         with self.assertRaises(xcrun.simctl.runtime.RuntimeNotFoundError):
-            _ = xcrun.simctl.runtime.from_name(uuid.uuid4())
+            _ = xcrun.simctl.runtime.from_name(str(uuid.uuid4()))

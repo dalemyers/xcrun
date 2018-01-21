@@ -22,7 +22,14 @@ class TestDevice(unittest.TestCase):
         """Test that we can create new devices in a consistent manner."""
 
         for available_device_type in TestDevice.available_device_types:
+            device_tested = False
+
             for available_runtime in TestDevice.available_runtimes:
+
+                # We only need to test a device once. Doing it any more takes
+                # too long
+                if device_tested:
+                    continue
 
                 # iDevices should run iOS, watch devices should run watchOS, etc.
                 if "iPhone" in available_device_type.identifier or "iPad" in available_device_type.identifier:
@@ -59,3 +66,6 @@ class TestDevice(unittest.TestCase):
                 self.assertEqual(device.runtime(), available_runtime, "Runtimes did not match: %s, %s" % (device.runtime(), available_runtime))
 
                 device.delete()
+
+                # Mark that this device has been tested at least once
+                device_tested = True

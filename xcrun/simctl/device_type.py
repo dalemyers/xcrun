@@ -42,3 +42,14 @@ def from_id(identifier):
         if device_type.identifier == identifier:
             return device_type
     raise DeviceTypeNotFoundError("No device type matching identifier: " + identifier)
+
+def from_name(name):
+    """Create a device type by looking up the existing ones matching the supplied name."""
+    # Get all device types
+    device_types = xcrun.simctl.listall.device_types()
+
+    for device_type in device_types:
+        if device_type.name == name:
+            return device_type
+
+    raise DeviceTypeNotFoundError("No device type matching name: " + name)
