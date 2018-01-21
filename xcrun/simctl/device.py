@@ -141,10 +141,6 @@ class Device(object):
         """Return the string representation of the object."""
         return self.name + ": " + self.udid
 
-    def __repr__(self):
-        """Return the raw representation of the object."""
-        return str([self.raw_info, self.runtime_name])
-
 
 def from_xcrun_info(info):
     """Create a new device from the xcrun info."""

@@ -38,10 +38,6 @@ class Runtime(object):
         """Return a string representation of the runtime."""
         return "%s: %s" % (self.name, self.identifier)
 
-    def __repr__(self):
-        """Return the raw info of the runtime."""
-        return str(self.raw_info)
-
 
 def from_xcrun_info(info):
     """Create a runtime from the xcrun info."""

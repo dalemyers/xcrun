@@ -22,10 +22,6 @@ class DeviceType(object):
         """Return a user readable string representing the device type."""
         return self.name + ": " + self.identifier
 
-    def __repr__(self):
-        """Return the string of the raw_info which can be used to reconstruct the device type."""
-        return str(self.raw_info)
-
 
 def from_xcrun_info(info):
     """Create a new device type from the xcrun info."""

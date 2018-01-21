@@ -37,14 +37,6 @@ class DevicePair(object):
         """Return the string representation of the object."""
         return self.identifier
 
-    def __repr__(self):
-        """Return the raw representation of the object."""
-        return str({
-            "identifier": self.identifier,
-            "watch_udid": self.watch_udid,
-            "phone_udid": self.phone_udid
-        })
-
 
 def from_xcrun_info(info):
     """Create a new device pair using the info from xcrun."""
