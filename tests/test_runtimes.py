@@ -75,3 +75,32 @@ class TestRuntime(unittest.TestCase):
         # It's unlikely that anyone would get the exact same UUID as we generate
         with self.assertRaises(xcrun.simctl.runtime.RuntimeNotFoundError):
             _ = xcrun.simctl.runtime.from_name(str(uuid.uuid4()))
+
+    def test_equality(self):
+        """Test that the equality check on runtimes is accurate."""
+        all_runtimes = xcrun.simctl.listall.runtimes()
+
+        # We need at least 2 runtimes to test
+        self.assertTrue(len(all_runtimes) >= 2)
+
+        # Select 2 random ones
+        runtime_a, runtime_b = random.sample(all_runtimes, 2)
+
+        # They should be different from each other
+        self.assertNotEqual(runtime_a, runtime_b)
+
+        # Checking one against something totally different should always be false
+        self.assertNotEqual(runtime_a, ["Hello", "World"])
+
+        # Checking one against itself should always be true
+        self.assertEqual(runtime_a, runtime_a)
+
+        # Checking a copy of one against itself should always be true
+        identifier_copy_a = xcrun.simctl.runtime.from_id(runtime_a.identifier)
+        self.assertEqual(runtime_a, identifier_copy_a)
+
+    def test_string_representations(self):
+        """Test that the string representations are unique."""
+        all_runtimes = xcrun.simctl.listall.runtimes()
+        strings = set([str(runtime) for runtime in all_runtimes])
+        self.assertEqual(len(strings), len(all_runtimes))
