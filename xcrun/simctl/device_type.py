@@ -18,6 +18,17 @@ class DeviceType(object):
         self.name = device_type_info["name"]
         self.identifier = device_type_info["identifier"]
 
+    def __eq__(self, other):
+        """Override the default Equals behavior"""
+        if not isinstance(other, self.__class__):
+            return False
+
+        return self.raw_info == other.raw_info
+
+    def __ne__(self, other):
+        """Define a non-equality test"""
+        return not self.__eq__(other)
+
     def __str__(self):
         """Return a user readable string representing the device type."""
         return self.name + ": " + self.identifier

@@ -74,3 +74,32 @@ class TestDeviceTypes(unittest.TestCase):
         # It's unlikely that anyone would get the exact same UUID as we generate
         with self.assertRaises(xcrun.simctl.device_type.DeviceTypeNotFoundError):
             _ = xcrun.simctl.device_type.from_name(str(uuid.uuid4()))
+
+    def test_equality(self):
+        """Test that the equality check on device types is accurate."""
+        all_device_types = xcrun.simctl.listall.device_types()
+
+        # We need at least 2 device types to test
+        self.assertTrue(len(all_device_types) >= 2)
+
+        # Select 2 random ones
+        device_type_a, device_type_b = random.sample(all_device_types, 2)
+
+        # They should be different from each other
+        self.assertNotEqual(device_type_a, device_type_b)
+
+        # Checking one against something totally different should always be false
+        self.assertNotEqual(device_type_a, ["Hello", "World"])
+
+        # Checking one against itself should always be true
+        self.assertEqual(device_type_a, device_type_a)
+
+        # Checking a copy of one against itself should always be true
+        identifier_copy_a = xcrun.simctl.device_type.from_id(device_type_a.identifier)
+        self.assertEqual(device_type_a, identifier_copy_a)
+
+    def test_string_representations(self):
+        """Test that the string representations are unique."""
+        all_device_types = xcrun.simctl.listall.device_types()
+        strings = set([str(device_type) for device_type in all_device_types])
+        self.assertEqual(len(strings), len(all_device_types))
