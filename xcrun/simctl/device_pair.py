@@ -1,6 +1,6 @@
 """Handles simulator watch device pairs."""
 
-import xcrun.simctl.simctl
+import xcrun.simctl
 
 class DevicePair(object):
     """Represents a device pair for the iOS simulator."""
@@ -37,19 +37,11 @@ class DevicePair(object):
         """Return the string representation of the object."""
         return self.identifier
 
-    def __repr__(self):
-        """Return the raw representation of the object."""
-        return str({
-            "identifier": self.identifier,
-            "watch_udid": self.watch_udid,
-            "phone_udid": self.phone_udid
-        })
-
 
 def from_xcrun_info(info):
     """Create a new device pair using the info from xcrun."""
     device_pairs = []
     pair_info = info["pairs"]
-    for device_pair_identifier, device_pair_info in pair_info.iteritems():
+    for device_pair_identifier, device_pair_info in pair_info.items():
         device_pairs.append(DevicePair(device_pair_identifier, device_pair_info))
     return device_pairs

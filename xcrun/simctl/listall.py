@@ -28,7 +28,7 @@ def device_types():
 
 def devices():
     """Return all available devices."""
-    device_info = _list("devices")
+    device_info = device_raw_info()
     return xcrun.simctl.device.from_xcrun_info(device_info)
 
 def device_raw_info():
