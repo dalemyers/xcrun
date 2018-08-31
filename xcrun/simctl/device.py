@@ -158,7 +158,7 @@ def from_xcrun_info(info):
 def from_identifier(identifier):
     """Create a new device from the xcrun info."""
     all_devices = xcrun.simctl.listall.devices()
-    for _, devices in all_devices.iteritems():
+    for _, devices in all_devices.items():
         for device in devices:
             if device.udid == identifier:
                 return device
@@ -180,7 +180,7 @@ def from_name(name, runtime=None):
     # multiple)
     matching_name_devices = []
 
-    for runtime_name, runtime_devices in all_devices.iteritems():
+    for runtime_name, runtime_devices in all_devices.items():
         for device in runtime_devices:
             if device.name == name:
                 matching_name_devices.append((device, runtime_name))

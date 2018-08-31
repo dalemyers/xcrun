@@ -42,6 +42,6 @@ def from_xcrun_info(info):
     """Create a new device pair using the info from xcrun."""
     device_pairs = []
     pair_info = info["pairs"]
-    for device_pair_identifier, device_pair_info in pair_info.iteritems():
+    for device_pair_identifier, device_pair_info in pair_info.items():
         device_pairs.append(DevicePair(device_pair_identifier, device_pair_info))
     return device_pairs

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 import time
 
@@ -16,7 +16,7 @@ app_id = "io.myers.testapp"
 iPhone7.refresh_state()
 
 
-#print iPhone7.get_app_container(app_id)
+#print(iPhone7.get_app_container(app_id))
 #iPhone7.openurl("http://google.com")
 #iPhone7.addmedia(["/Users/dalemy/Desktop/Screen Shot 2017-09-07 at 22.22.24.png"])
 
@@ -24,21 +24,21 @@ iPhone7.refresh_state()
 
 
 #test_device = xcrun.simctl.device.create("xcrun test device", iPhone7Type, iOS10_3)
-#print test_device
+#print(test_device)
 #test_device.delete()
 
 
 # Upgrade flow
 #upgrade_device = xcrun.simctl.device.create("Upgrade Device", iPhone7Type, iOS10_2)
-#print upgrade_device.__repr__()
+#print(upgrade_device.__repr__())
 
-#print "Waiting..."
+#print("Waiting...")
 #time.sleep(10)
 
 #upgrade_device.upgrade(iOS10_3)
-#print upgrade_device.__repr__()
+#print(upgrade_device.__repr__())
 
-#print "Waiting..."
+#print("Waiting...")
 #time.sleep(10)
 
 #upgrade_device.delete()
