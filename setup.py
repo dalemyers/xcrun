@@ -22,6 +22,7 @@ def run_setup():
         version='0.3',
         description='Python wrapper around the xcrun utility',
         long_description=long_description,
+        long_description_content_type='text/markdown',
         url='https://github.com/dalemyers/xcrun',
         author='Dale Myers',
         author_email='dale@myers.io',
