@@ -1,6 +1,6 @@
 # xcrun
 
-This is a Python wrapper around the `xcrun` utility that Apple provides for interacting with the various Xcode developer tools. 
+This is a Python wrapper around the `xcrun` utility that Apple provides for interacting with the various Xcode developer tools. This module has been tested against python 2.7, 3.6 & 3.7.
 
 ## simctl
 
@@ -23,4 +23,7 @@ You can do this:
 
 ## Testing
 
-To run the tests, all you need to do is run `python3 -m tox` (can be installed by running `python3 -m pip install tox`). 
+* `python3 -m tox` to run the tests. Tox can be installed by running `python3 -m pip install tox`.
+  * If using pyenv you need to make sure you have 2.7, 3.6, 3.7 activated with `pyenv local 2.7, 3.6, 3.7 && pyenv rehash`. See this [pyenv/pyenv92](https://github.com/pyenv/pyenv/issues/92) for more details.
+* `python3 -m pytest -m slow` to run the slow tests.
+
