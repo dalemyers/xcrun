@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 
+import pytest
 import subprocess
 import unittest
 import uuid
@@ -18,6 +19,7 @@ class TestDevice(unittest.TestCase):
         TestDevice.available_runtimes = xcrun.simctl.listall.runtimes()
         TestDevice.available_device_types = xcrun.simctl.listall.device_types()
 
+    @pytest.mark.slow
     def test_lifecycle(self):
         """Test that we can create new devices in a consistent manner."""
 
@@ -51,7 +53,7 @@ class TestDevice(unittest.TestCase):
                 try:
                     device = xcrun.simctl.device.create(device_name, available_device_type, available_runtime)
                 except subprocess.CalledProcessError as ex:
-                    if ex.returncode == 162:
+                    if ex.returncode == 162 or ex.returncode == 22:
                         # This was an incompatible pairing. That's fine since 
                         # we could be matching watchOS with an iOS device, or
                         # an iOS version with an older device, etc.

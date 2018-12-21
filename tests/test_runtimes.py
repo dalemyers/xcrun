@@ -40,7 +40,7 @@ class TestRuntime(unittest.TestCase):
         command = "xcrun simctl list runtimes | tail -n +2 | sed 's/.* - //'"
         runtimes = subprocess.check_output(command, universal_newlines=True, shell=True)
         runtimes = runtimes.split("\n")
-        runtimes = [runtime for runtime in runtimes if len(runtime) > 0]
+        runtimes = [runtime.strip() for runtime in runtimes if len(runtime) > 0 if "unavailable" not in runtime]
         self.assertTrue(len(runtimes) > 0)
 
         runtime_identifier = random.choice(runtimes)
@@ -55,7 +55,7 @@ class TestRuntime(unittest.TestCase):
         command = "xcrun simctl list runtimes | tail -n +2 | sed -e 's/ (.*//'"
         runtimes = subprocess.check_output(command, universal_newlines=True, shell=True)
         runtimes = runtimes.split("\n")
-        runtimes = [runtime for runtime in runtimes if len(runtime) > 0]
+        runtimes = [runtime.strip() for runtime in runtimes if len(runtime) > 0 if "unavailable" not in runtime]
         self.assertTrue(len(runtimes) > 0)
 
         runtime_name = random.choice(runtimes)
@@ -74,7 +74,7 @@ class TestRuntime(unittest.TestCase):
         """Test that we don't accidentially match on invalid names."""
         # It's unlikely that anyone would get the exact same UUID as we generate
         with self.assertRaises(xcrun.simctl.runtime.RuntimeNotFoundError):
-            _ = xcrun.simctl.runtime.from_name(str(uuid.uuid4()))
+            _ = xcrun.simctl.runtime.from_name(uuid.uuid4().__str__())
 
     def test_equality(self):
         """Test that the equality check on runtimes is accurate."""
@@ -102,5 +102,5 @@ class TestRuntime(unittest.TestCase):
     def test_string_representations(self):
         """Test that the string representations are unique."""
         all_runtimes = xcrun.simctl.listall.runtimes()
-        strings = set([str(runtime) for runtime in all_runtimes])
+        strings = set([runtime.__str__() for runtime in all_runtimes])
         self.assertEqual(len(strings), len(all_runtimes))

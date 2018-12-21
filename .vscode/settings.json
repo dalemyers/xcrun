@@ -2,10 +2,17 @@
     "editor.useTabStops": false,
     "editor.tabSize": 4,
     "search.exclude": {
+        "venv/**": true,
         "**/.git": true,
         "**/.tox": true,
         "**/.dist": true,
         "**/.cache": true,
         "**/xcrun.egg-info": true
-    }
+    },
+    "python.unitTest.pyTestArgs": [
+        "tests"
+    ],
+    "python.unitTest.unittestEnabled": false,
+    "python.unitTest.nosetestsEnabled": false,
+    "python.unitTest.pyTestEnabled": true
 }

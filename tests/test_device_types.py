@@ -101,5 +101,5 @@ class TestDeviceTypes(unittest.TestCase):
     def test_string_representations(self):
         """Test that the string representations are unique."""
         all_device_types = xcrun.simctl.listall.device_types()
-        strings = set([str(device_type) for device_type in all_device_types])
+        strings = set([device_type.__str__() for device_type in all_device_types])
         self.assertEqual(len(strings), len(all_device_types))

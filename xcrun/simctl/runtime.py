@@ -36,7 +36,12 @@ class Runtime(object):
 
     def __str__(self):
         """Return a string representation of the runtime."""
-        return "%s: %s" % (self.name, self.identifier)
+        return "%s:  %s" % (self.name, self.identifier)
+
+    def __repr__(self):
+        """Return a string representation of the runtime."""
+        return self.raw_info.__repr__()
+
 
 
 def from_xcrun_info(info):
