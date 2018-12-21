@@ -34,7 +34,8 @@ class DeviceType(object):
         return self.name + ": " + self.identifier
 
     def __repr__(self):
-        return self.__str__()
+        """Return the raw info of the simctl output"""
+        return self.raw_info.__str__()
 
 
 def from_xcrun_info(info):

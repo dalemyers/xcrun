@@ -39,7 +39,7 @@ class Runtime(object):
         return "%s:  %s" % (self.name, self.identifier)
 
     def __repr__(self):
-        """Return a string representation of the runtime."""
+        """Return the raw info of the simctl output"""
         return self.raw_info.__repr__()
 
 
