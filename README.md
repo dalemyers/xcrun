@@ -23,4 +23,4 @@ You can do this:
 
 ## Testing
 
-To run the tests, all you need to do is run `python3 -m tox` (can be installed by running `python3 -m pip install tox`). 
+To run the tests, all you need to do is run `tox`. If you don't have tox installed already, it can be installed by running `pip install tox --user`. It is recommended that you install tox in a virtual environment.
