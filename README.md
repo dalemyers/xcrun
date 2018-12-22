@@ -8,7 +8,7 @@ This is a Python wrapper around the `xcrun simctl` utility that Apple provides f
 
 With this module you can print the result of:
 
-    isim.listall.runtimes()
+    isim.list_runtimes()
 
 Most functions are on the item that they affect. So instead of running something on a device like:
 

@@ -2,7 +2,6 @@
 
 from typing import Any, Dict, List
 
-import isim.listall
 import isim
 
 class RuntimeNotFoundError(Exception):
@@ -48,8 +47,7 @@ def from_simctl_info(info: List[Dict[str, Any]]) -> List[Runtime]:
 def from_id(identifier: str) -> Runtime:
     """Create a runtime by looking up the existing ones matching the supplied identifier."""
     # Get all runtimes
-    all_runtimes = isim.listall.runtimes()
-    for runtime in all_runtimes:
+    for runtime in list_all():
         if runtime.identifier == identifier:
             return runtime
 
@@ -57,11 +55,14 @@ def from_id(identifier: str) -> Runtime:
 
 def from_name(name: str) -> Runtime:
     """Create a runtime by looking up the existing ones matching the supplied name."""
-    # Get all runtimes
-    all_runtimes = isim.listall.runtimes()
-
-    for runtime in all_runtimes:
+    for runtime in list_all():
         if runtime.name == name:
             return runtime
 
     raise RuntimeNotFoundError()
+
+
+def list_all() -> List[Runtime]:
+    """Return all available runtimes."""
+    runtime_info = isim.list_type(isim.SimulatorControlType.runtime)
+    return from_simctl_info(runtime_info)

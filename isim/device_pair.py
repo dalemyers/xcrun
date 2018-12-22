@@ -51,3 +51,9 @@ def from_simctl_info(info: Dict[str, Any]) -> List[DevicePair]:
     for device_pair_identifier, device_pair_info in info.items():
         device_pairs.append(DevicePair(device_pair_identifier, device_pair_info))
     return device_pairs
+
+
+def list_all() -> List[DevicePair]:
+    """Return all available device pairs."""
+    device_pair_info = isim.list_type(isim.SimulatorControlType.device_pair)
+    return from_simctl_info(device_pair_info)

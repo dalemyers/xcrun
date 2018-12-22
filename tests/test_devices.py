@@ -16,8 +16,8 @@ class TestDevice(unittest.TestCase):
 
     @classmethod
     def setUpClass(cls):
-        TestDevice.available_runtimes = isim.listall.runtimes()
-        TestDevice.available_device_types = isim.listall.device_types()
+        TestDevice.available_runtimes = isim.runtime.list_all()
+        TestDevice.available_device_types = isim.device_type.list_all()
 
 
     def run_device_test(self, available_device_type, available_runtime):

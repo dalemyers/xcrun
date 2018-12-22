@@ -78,7 +78,7 @@ class TestRuntime(unittest.TestCase):
 
     def test_equality(self):
         """Test that the equality check on runtimes is accurate."""
-        all_runtimes = isim.listall.runtimes()
+        all_runtimes = isim.runtime.list_all()
 
         # We need at least 2 runtimes to test
         self.assertTrue(len(all_runtimes) >= 2)
@@ -101,6 +101,6 @@ class TestRuntime(unittest.TestCase):
 
     def test_string_representations(self):
         """Test that the string representations are unique."""
-        all_runtimes = isim.listall.runtimes()
+        all_runtimes = isim.runtime.list_all()
         strings = {str(runtime) for runtime in all_runtimes}
         self.assertEqual(len(strings), len(all_runtimes))

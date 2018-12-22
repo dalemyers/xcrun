@@ -2,8 +2,8 @@
 
 from typing import Any, Dict, List, Optional
 
+import isim.device_type
 import isim.runtime
-import isim.listall
 import isim
 
 class MultipleMatchesException(Exception):
@@ -154,22 +154,21 @@ class Device(isim.SimulatorControlBase):
         return self.name + ": " + self.udid
 
 
-def from_simctl_info(info: Dict[str, List[Dict[str, Any]]]) -> Dict[str, List[isim.device.Device]]:
+def from_simctl_info(info: Dict[str, List[Dict[str, Any]]]) -> Dict[str, List[Device]]:
     """Create a new device from the simctl info."""
-    all_devices: Dict[str, List[isim.device.Device]] = {}
+    all_devices: Dict[str, List[Device]] = {}
     for runtime_name in info.keys():
         runtime_devices_info = info[runtime_name]
-        devices: List[isim.device.Device] = []
+        devices: List[Device] = []
         for device_info in runtime_devices_info:
             devices.append(Device(device_info, runtime_name))
         all_devices[runtime_name] = devices
     return all_devices
 
 
-def from_identifier(identifier: str) -> isim.device.Device:
+def from_identifier(identifier: str) -> Device:
     """Create a new device from the simctl info."""
-    all_devices = isim.listall.devices()
-    for _, devices in all_devices.items():
+    for _, devices in list_all().items():
         for device in devices:
             if device.udid == identifier:
                 return device
@@ -180,21 +179,17 @@ def from_identifier(identifier: str) -> isim.device.Device:
 def from_name(
         name: str,
         runtime: Optional[isim.runtime.Runtime] = None
-    ) -> Optional[isim.device.Device]:
+    ) -> Optional[Device]:
     """Get a device from the existing devices using the name.
 
     If the name matches multiple devices, the runtime is used as a secondary filter (if supplied).
     If there are still multiple matching devices, an exception is raised.
     """
 
-    # Get all devices
-    all_devices = isim.listall.devices()
-
-    # Now only get the ones matching the name (keep track of the runtime_id in case there are
-    # multiple)
+    # Only get the ones matching the name (keep track of the runtime_id in case there are multiple)
     matching_name_devices = []
 
-    for runtime_name, runtime_devices in all_devices.items():
+    for runtime_name, runtime_devices in list_all().items():
         for device in runtime_devices:
             if device.name == name:
                 matching_name_devices.append((device, runtime_name))
@@ -227,7 +222,7 @@ def create(
         name: str,
         device_type: isim.device_type.DeviceType,
         runtime: isim.runtime.Runtime
-    ) -> isim.device.Device:
+    ) -> Device:
     """Create a new device."""
     device_id = isim.create_device(name, device_type, runtime)
     return from_identifier(device_id)
@@ -235,3 +230,13 @@ def create(
 def delete_unavailable() -> None:
     """Delete all unavailable devices."""
     isim.delete_unavailable_devices()
+
+
+def list_all() -> Dict[str, List[Device]]:
+    """Return all available devices."""
+    raw_info = list_all_raw()
+    return from_simctl_info(raw_info)
+
+def list_all_raw() -> Dict[str, List[Dict[str, Any]]]:
+    """Return all device info."""
+    return isim.list_type(isim.SimulatorControlType.device)

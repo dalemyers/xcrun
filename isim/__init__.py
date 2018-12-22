@@ -1,13 +1,18 @@
 """Wrapper around `xcrun simctl`."""
 
 import enum
+import json
 import subprocess
 from typing import Any, Dict, List, Optional
+
+from isim.device_pair import DevicePair
+from isim.device_type import DeviceType
+from isim.device import Device
+from isim.runtime import Runtime
 
 import isim.device_pair
 import isim.device_type
 import isim.device
-import isim.listall
 import isim.runtime
 
 __version__ = "0.5"
@@ -101,12 +106,30 @@ def _run_command(command: str) -> str:
     # Deliberately don't catch the exception - we want it to bubble up
     return subprocess.run(full_command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE).stdout
 
+
+def list_type(item: SimulatorControlType) -> Any:
+    """Run an `xcrun simctl` command with JSON output."""
+    full_command = "xcrun simctl list %s --json" % (item.list_key(),)
+    # Deliberately don't catch the exception - we want it to bubble up
+    output = subprocess.run(full_command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE).stdout
+
+    json_output = json.loads(output)
+
+    if not isinstance(json_output, dict):
+        raise Exception("Unexpected list type: " + str(type(json_output)))
+
+    if not json_output.get(item):
+        raise Exception("Unexpected format for " + item.list_key() + " list type: " + str(json_output))
+
+    return json_output[item]
+
+
 def device_info(device_id: str) -> Optional[Dict[str, Any]]:
     """Return the info for the device with the matching identifier."""
-    device_info_map = isim.listall.device_raw_info()
+    device_info_map = isim.device.list_all_raw()
     for operating_system in device_info_map.keys():
-        devices = device_info_map[operating_system]
-        for device in devices:
+        all_devices = device_info_map[operating_system]
+        for device in all_devices:
             if device["udid"].lower() == device_id.lower():
                 return device
     raise isim.device.DeviceNotFoundError("No device with ID: " + device_id)
@@ -237,7 +260,7 @@ def uninstall_app(device: isim.device.Device, app_identifier: str) -> None:
     command = 'uninstall "%s" "%s"' % (device.udid, app_identifier)
     _run_command(command)
 
-def activate_pair(device_pair: isim.device_pair.DevicePair) -> None:
+def activate_pair(device_pair: DevicePair) -> None:
     """Set a given pair as active."""
     command = 'pair_activate "%s"' % (device_pair.identifier,)
     _run_command(command)

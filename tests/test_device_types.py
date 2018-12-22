@@ -77,7 +77,7 @@ class TestDeviceTypes(unittest.TestCase):
 
     def test_equality(self):
         """Test that the equality check on device types is accurate."""
-        all_device_types = isim.listall.device_types()
+        all_device_types = isim.device_type.list_all()
 
         # We need at least 2 device types to test
         self.assertTrue(len(all_device_types) >= 2)
@@ -100,6 +100,6 @@ class TestDeviceTypes(unittest.TestCase):
 
     def test_string_representations(self):
         """Test that the string representations are unique."""
-        all_device_types = isim.listall.device_types()
+        all_device_types = isim.device_type.list_all()
         strings = {[str(device_type) for device_type in all_device_types]}
         self.assertEqual(len(strings), len(all_device_types))
