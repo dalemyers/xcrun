@@ -2,7 +2,7 @@
 
 import xcrun.simctl
 
-class DevicePair(object):
+class DevicePair:
     """Represents a device pair for the iOS simulator."""
 
     def __init__(self, device_pair_identifier, device_pair_info):

@@ -5,9 +5,8 @@ import xcrun.simctl
 
 class RuntimeNotFoundError(Exception):
     """Raised when a requested runtime is not found."""
-    pass
 
-class Runtime(object):
+class Runtime:
     """Represents a runtime for the iOS simulator."""
 
     def __init__(self, runtime_info):

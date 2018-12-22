@@ -12,7 +12,13 @@ def _list(item):
     """Run an `xcrun simctl` command with JSON output."""
     full_command = "xcrun simctl list %s --json" % (item,)
     # Deliberately don't catch the exception - we want it to bubble up
-    output = subprocess.check_output(full_command, universal_newlines=True, shell=True)
+    output = subprocess.run(
+        full_command,
+        universal_newlines=True,
+        shell=True,
+        check=True,
+        stdout=subprocess.PIPE
+    ).stdout
     return json.loads(output)
 
 def runtimes():

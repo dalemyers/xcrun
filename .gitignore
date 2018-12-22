@@ -16,3 +16,4 @@ junit/**
 lib/**
 pip-selfcheck.json
 pyvenv.cfg
+share

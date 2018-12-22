@@ -1,3 +1,5 @@
+"""Base tests module."""
+
 import sys
 import os
 

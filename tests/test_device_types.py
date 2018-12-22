@@ -35,8 +35,14 @@ class TestDeviceTypes(unittest.TestCase):
 
         # Get a random device type identifier
         command = "xcrun simctl list devicetypes | tail -n +2 | sed 's/.* (\\(.*\\))/\\1/'"
-        device_type_identifiers = subprocess.check_output(
-            command, universal_newlines=True, shell=True)
+        device_type_identifiers = subprocess.run(
+            command,
+            universal_newlines=True,
+            shell=True,
+            check=True,
+            stdout=subprocess.PIPE
+        ).stdout
+
         device_type_identifiers = device_type_identifiers.split("\n")
         device_type_identifiers = [identifier for identifier in device_type_identifiers
                                    if len(identifier) > 0]
@@ -52,7 +58,13 @@ class TestDeviceTypes(unittest.TestCase):
         """Test that we can create a device type reference from an existing device type name."""
         # Get a random device type name
         command = "xcrun simctl list devicetypes | tail -n +2 | sed 's/\\(.*\\) (.*)/\\1/'"
-        device_type_names = subprocess.check_output(command, universal_newlines=True, shell=True)
+        device_type_names = subprocess.run(
+            command,
+            universal_newlines=True,
+            shell=True,
+            check=True,
+            stdout=subprocess.PIPE
+        ).stdout
         device_type_names = device_type_names.split("\n")
         device_type_names = [name for name in device_type_names if len(name) > 0]
         self.assertTrue(len(device_type_names) > 0)

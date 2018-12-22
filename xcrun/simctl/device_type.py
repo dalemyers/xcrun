@@ -4,9 +4,8 @@ import xcrun.simctl.listall
 
 class DeviceTypeNotFoundError(Exception):
     """Raised when a requested device type is not found."""
-    pass
 
-class DeviceType(object):
+class DeviceType:
     """Represents a device type for the iOS simulator."""
 
     def __init__(self, device_type_info):

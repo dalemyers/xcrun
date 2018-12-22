@@ -55,7 +55,13 @@ def _run_command(command):
     """Run an xcrun simctl command."""
     full_command = "xcrun simctl %s" % (command,)
     # Deliberately don't catch the exception - we want it to bubble up
-    return subprocess.check_output(full_command, universal_newlines=True, shell=True)
+    return subprocess.run(
+        full_command,
+        universal_newlines=True,
+        shell=True,
+        check=True,
+        stdout=subprocess.PIPE
+    ).stdout
 
 def device_info(device_id):
     """Return the info for the device with the matching identifier."""

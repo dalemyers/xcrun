@@ -6,17 +6,14 @@ import xcrun.simctl
 
 class MultipleMatchesException(Exception):
     """Raised when we have multiple matches, but only expect a single one."""
-    pass
 
 class DeviceNotFoundError(Exception):
     """Raised when a requested device is not found."""
-    pass
 
 class InvalidDeviceError(Exception):
     """Raised when a device is not of the correct type."""
-    pass
 
-class Device(object):
+class Device:
     """Represents a device for the iOS simulator."""
 
     def __init__(self, device_info, runtime_name):
