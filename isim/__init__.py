@@ -4,12 +4,13 @@ import enum
 import subprocess
 from typing import Any, Dict, List, Optional
 
-import xcrun.simctl.device_pair
-import xcrun.simctl.device_type
-import xcrun.simctl.device
-import xcrun.simctl.listall
-import xcrun.simctl.runtime
+import isim.device_pair
+import isim.device_type
+import isim.device
+import isim.listall
+import isim.runtime
 
+__version__ = "0.5"
 
 # Advanced:
 
@@ -102,16 +103,16 @@ def _run_command(command: str) -> str:
 
 def device_info(device_id: str) -> Optional[Dict[str, Any]]:
     """Return the info for the device with the matching identifier."""
-    device_info_map = xcrun.simctl.listall.device_raw_info()
+    device_info_map = isim.listall.device_raw_info()
     for operating_system in device_info_map.keys():
         devices = device_info_map[operating_system]
         for device in devices:
             if device["udid"].lower() == device_id.lower():
                 return device
-    raise xcrun.simctl.device.DeviceNotFoundError("No device with ID: " + device_id)
+    raise isim.device.DeviceNotFoundError("No device with ID: " + device_id)
 
 
-def get_app_container(device: xcrun.simctl.device.Device, app_identifier: str, container: Optional[str] = None) -> str:
+def get_app_container(device: isim.device.Device, app_identifier: str, container: Optional[str] = None) -> str:
     """Return the path of the installed app's container on the supplied device."""
     command = 'get_app_container "%s" "%s"' % (device.udid, app_identifier)
 
@@ -125,22 +126,22 @@ def get_app_container(device: xcrun.simctl.device.Device, app_identifier: str, c
     return path[:-1]
     #pylint: enable=unsubscriptable-object
 
-def openurl(device: xcrun.simctl.device.Device, url: str) -> None:
+def openurl(device: isim.device.Device, url: str) -> None:
     """Open a URL in a device."""
     command = 'openurl "%s" "%s"' % (device.udid, url)
     _run_command(command)
 
-def logverbose(device: xcrun.simctl.device.Device, enable: bool) -> None:
+def logverbose(device: isim.device.Device, enable: bool) -> None:
     """Enable or disable verbose logging for a device."""
     command = 'logverbose "%s" "%s"' % (device.udid, "enable" if enable else "disable")
     _run_command(command)
 
-def icloud_sync(device: xcrun.simctl.device.Device) -> None:
+def icloud_sync(device: isim.device.Device) -> None:
     """Trigger iCloud sync on a device."""
     command = 'icloud_sync "%s"' % (device.udid,)
     _run_command(command)
 
-def getenv(device: xcrun.simctl.device.Device, variable_name: str) -> str:
+def getenv(device: isim.device.Device, variable_name: str) -> str:
     """Return an environment variable from a running device."""
     command = 'getenv "%s" "%s"' % (device.udid, variable_name)
     variable = _run_command(command)
@@ -149,7 +150,7 @@ def getenv(device: xcrun.simctl.device.Device, variable_name: str) -> str:
     return variable[:-1]
     #pylint: enable=unsubscriptable-object
 
-def addmedia(device: xcrun.simctl.device.Device, paths: List[str]) -> None:
+def addmedia(device: isim.device.Device, paths: List[str]) -> None:
     """Add photos, live photos, or videos to the photo library of a device."""
 
     if isinstance(paths, str):
@@ -167,7 +168,7 @@ def addmedia(device: xcrun.simctl.device.Device, paths: List[str]) -> None:
 
     _run_command(command)
 
-def create_device(name: str, device_type: xcrun.simctl.device_type.DeviceType, runtime: xcrun.simctl.runtime.Runtime):
+def create_device(name: str, device_type: isim.device_type.DeviceType, runtime: isim.runtime.Runtime):
     """Create a new device, returning the identifier."""
     command = 'create "%s" "%s" "%s"' % (name, device_type.identifier, runtime.identifier)
     device_id = _run_command(command)
@@ -177,7 +178,7 @@ def create_device(name: str, device_type: xcrun.simctl.device_type.DeviceType, r
     return device_id[:-1]
     #pylint: enable=unsubscriptable-object
 
-def delete_device(device: xcrun.simctl.device.Device) -> None:
+def delete_device(device: isim.device.Device) -> None:
     """Delete a device."""
     command = 'delete "%s"' % (device.udid)
     _run_command(command)
@@ -186,32 +187,32 @@ def delete_unavailable_devices() -> None:
     """Delete all unavailable devices."""
     _run_command('delete unavailable')
 
-def rename_device(device: xcrun.simctl.device.Device, name: str) -> None:
+def rename_device(device: isim.device.Device, name: str) -> None:
     """Renames a device."""
     command = 'rename "%s" "%s"' % (device.udid, name)
     _run_command(command)
 
-def boot_device(device: xcrun.simctl.device.Device) -> None:
+def boot_device(device: isim.device.Device) -> None:
     """Boots a device."""
     command = 'boot "%s"' % (device.udid,)
     _run_command(command)
 
-def shutdown_device(device: xcrun.simctl.device.Device) -> None:
+def shutdown_device(device: isim.device.Device) -> None:
     """Shuts down a device."""
     command = 'shutdown "%s"' % (device.udid,)
     _run_command(command)
 
-def erase_device(device: xcrun.simctl.device.Device) -> None:
+def erase_device(device: isim.device.Device) -> None:
     """Erase a device's contents and settings.."""
     command = 'erase "%s"' % (device.udid,)
     _run_command(command)
 
-def upgrade_device(device: xcrun.simctl.device.Device, runtime: xcrun.simctl.runtime.Runtime) -> None:
+def upgrade_device(device: isim.device.Device, runtime: isim.runtime.Runtime) -> None:
     """Upgrade a device to a newer runtime."""
     command = 'upgrade "%s" "%s"' % (device.udid, runtime.identifier)
     _run_command(command)
 
-def clone_device(device: xcrun.simctl.device.Device, new_name: str) -> str:
+def clone_device(device: isim.device.Device, new_name: str) -> str:
     """Clone an existing device."""
     command = 'clone "%s" "%s"' % (device.udid, new_name)
     device_id = _run_command(command)
@@ -221,32 +222,32 @@ def clone_device(device: xcrun.simctl.device.Device, new_name: str) -> str:
     return device_id[:-1]
     #pylint: enable=unsubscriptable-object
 
-def terminate_app(device: xcrun.simctl.device.Device, app_identifier: str) -> None:
+def terminate_app(device: isim.device.Device, app_identifier: str) -> None:
     """Terminate an application by identifier on a device."""
     command = 'terminate "%s" "%s"' % (device.udid, app_identifier)
     _run_command(command)
 
-def install_app(device: xcrun.simctl.device.Device, path: str) -> None:
+def install_app(device: isim.device.Device, path: str) -> None:
     """Install an application on device using the path."""
     command = 'install "%s" "%s"' % (device.udid, path)
     _run_command(command)
 
-def uninstall_app(device: xcrun.simctl.device.Device, app_identifier: str) -> None:
+def uninstall_app(device: isim.device.Device, app_identifier: str) -> None:
     """Uninstall an application by identifier on a device."""
     command = 'uninstall "%s" "%s"' % (device.udid, app_identifier)
     _run_command(command)
 
-def activate_pair(device_pair: xcrun.simctl.device_pair.DevicePair) -> None:
+def activate_pair(device_pair: isim.device_pair.DevicePair) -> None:
     """Set a given pair as active."""
     command = 'pair_activate "%s"' % (device_pair.identifier,)
     _run_command(command)
 
-def unpair_devices(device_pair: xcrun.simctl.device_pair.DevicePair) -> None:
+def unpair_devices(device_pair: isim.device_pair.DevicePair) -> None:
     """Terminate an application by identifier on a device."""
     command = 'unpair "%s"' % (device_pair.identifier,)
     _run_command(command)
 
-def pair_devices(watch: xcrun.simctl.device.Device, phone: xcrun.simctl.device.Device) -> str:
+def pair_devices(watch: isim.device.Device, phone: isim.device.Device) -> str:
     """Terminate an application by identifier on a device."""
     command = 'pair "%s" "%s"' % (watch.udid, phone.udid)
     pair_id = _run_command(command)

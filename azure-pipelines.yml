@@ -19,14 +19,14 @@ jobs:
   - script: python -m pip install --upgrade pip && pip install -r requirements.txt
     displayName: 'Install dependencies'
 
-  - script: python -m pylint --rcfile=pylintrc xcrun
+  - script: python -m pylint --rcfile=pylintrc isim
     displayName: 'Lint'
 
-  - script: python -m mypy --ignore-missing-imports xcrun/
+  - script: python -m mypy --ignore-missing-imports isim/
     displayName: 'Type Check'
 
   - script: |
-      python -m pytest tests --cov=xcrun --cov-report html --cov-report xml --doctest-modules --junitxml=junit/test-results.xml
+      python -m pytest tests --cov=isim --cov-report html --cov-report xml --doctest-modules --junitxml=junit/test-results.xml
     displayName: 'pytest'
 
   - script: |

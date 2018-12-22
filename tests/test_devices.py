@@ -5,19 +5,19 @@ from typing import List
 import unittest
 import uuid
 
-import xcrun.simctl
+import isim
 
 
 class TestDevice(unittest.TestCase):
     """Test device interaction."""
 
-    available_runtimes: List[xcrun.simctl.runtime.Runtime] = []
-    available_device_types: List[xcrun.simctl.device_type.DeviceType] = []
+    available_runtimes: List[isim.runtime.Runtime] = []
+    available_device_types: List[isim.device_type.DeviceType] = []
 
     @classmethod
     def setUpClass(cls):
-        TestDevice.available_runtimes = xcrun.simctl.listall.runtimes()
-        TestDevice.available_device_types = xcrun.simctl.listall.device_types()
+        TestDevice.available_runtimes = isim.listall.runtimes()
+        TestDevice.available_device_types = isim.listall.device_types()
 
 
     def run_device_test(self, available_device_type, available_runtime):
@@ -41,7 +41,7 @@ class TestDevice(unittest.TestCase):
         availability = "(available)"
 
         try:
-            device = xcrun.simctl.device.create(device_name, available_device_type, available_runtime)
+            device = isim.device.create(device_name, available_device_type, available_runtime)
         except subprocess.CalledProcessError as ex:
             if ex.returncode == 162:
                 # This was an incompatible pairing. That's fine since

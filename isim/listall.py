@@ -4,10 +4,10 @@ import json
 import subprocess
 from typing import Any, Dict, List
 
-import xcrun.simctl.runtime
-import xcrun.simctl.device_type
-import xcrun.simctl.device
-import xcrun.simctl.device_pair
+import isim.runtime
+import isim.device_type
+import isim.device
+import isim.device_pair
 
 def _list(item: str) -> Any:
     """Run an `xcrun simctl` command with JSON output."""
@@ -25,27 +25,27 @@ def _list(item: str) -> Any:
 
     return json_output[item]
 
-def runtimes() -> List[xcrun.simctl.runtime.Runtime]:
+def runtimes() -> List[isim.runtime.Runtime]:
     """Return all available runtimes."""
-    runtime_info = _list(xcrun.simctl.SimulatorControlType.runtime.list_key())
-    return xcrun.simctl.runtime.from_xcrun_info(runtime_info)
+    runtime_info = _list(isim.SimulatorControlType.runtime.list_key())
+    return isim.runtime.from_simctl_info(runtime_info)
 
 
-def device_types() -> List[xcrun.simctl.device_type.DeviceType]:
+def device_types() -> List[isim.device_type.DeviceType]:
     """Return all available device types."""
-    device_type_info = _list(xcrun.simctl.SimulatorControlType.device_type.list_key())
-    return xcrun.simctl.device_type.from_xcrun_info(device_type_info)
+    device_type_info = _list(isim.SimulatorControlType.device_type.list_key())
+    return isim.device_type.from_simctl_info(device_type_info)
 
-def devices() -> Dict[str, List[xcrun.simctl.device.Device]]:
+def devices() -> Dict[str, List[isim.device.Device]]:
     """Return all available devices."""
     device_info = device_raw_info()
-    return xcrun.simctl.device.from_xcrun_info(device_info)
+    return isim.device.from_simctl_info(device_info)
 
 def device_raw_info() -> Dict[str, List[Dict[str, Any]]]:
     """Return all device info."""
-    return _list(xcrun.simctl.SimulatorControlType.device.list_key())
+    return _list(isim.SimulatorControlType.device.list_key())
 
-def device_pairs() -> List[xcrun.simctl.device_pair.DevicePair]:
+def device_pairs() -> List[isim.device_pair.DevicePair]:
     """Return all available device pairs."""
-    device_pair_info = _list(xcrun.simctl.SimulatorControlType.device_pair.list_key())
-    return xcrun.simctl.device_pair.from_xcrun_info(device_pair_info)
+    device_pair_info = _list(isim.SimulatorControlType.device_pair.list_key())
+    return isim.device_pair.from_simctl_info(device_pair_info)

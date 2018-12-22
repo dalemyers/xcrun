@@ -4,6 +4,7 @@ from os import path
 
 from setuptools import setup, find_packages
 
+import isim
 
 def run_setup():
     """Run package setup."""
@@ -18,9 +19,9 @@ def run_setup():
         long_description = None
 
     setup(
-        name='xcrun',
-        version='0.3',
-        description='Python wrapper around the xcrun utility',
+        name='isim',
+        version=isim.__version__,
+        description='Python wrapper around the simctl utility',
         long_description=long_description,
         long_description_content_type='text/markdown',
         url='https://github.com/dalemyers/xcrun',
@@ -41,7 +42,7 @@ def run_setup():
             'Topic :: Utilities'
         ],
 
-        keywords='xcode xcrun simctl ios simulator',
+        keywords='xcode xcrun simctl ios simulator isim',
         packages=find_packages(exclude=['docs', 'tests'])
     )
 
