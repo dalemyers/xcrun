@@ -1,10 +1,12 @@
 """Represents a device for simctl."""
 
-from typing import Any, Dict, List, Optional
+#pylint: disable=too-many-public-methods
 
-import isim.device_type
-import isim.runtime
-import isim
+from typing import Any, Dict, List, Optional, Union
+
+from isim.runtime import Runtime
+from isim.device_type import DeviceType
+from isim.base_types import SimulatorControlBase, SimulatorControlType
 
 class MultipleMatchesException(Exception):
     """Raised when we have multiple matches, but only expect a single one."""
@@ -15,7 +17,7 @@ class DeviceNotFoundError(Exception):
 class InvalidDeviceError(Exception):
     """Raised when a device is not of the correct type."""
 
-class Device(isim.SimulatorControlBase):
+class Device(SimulatorControlBase):
     """Represents a device for the iOS simulator."""
 
     runtime_name: str
@@ -24,21 +26,18 @@ class Device(isim.SimulatorControlBase):
     availability: str
     name: str
     udid: str
-    _runtime: Optional[isim.runtime.Runtime]
+    _runtime: Optional[Runtime]
 
-    def __init__(self, device_info: Dict[str, Any], runtime_name: str):
+    def __init__(self, device_info: Dict[str, Any], runtime_name: str) -> None:
         """Construct a Device object from simctl output and a runtime key.
 
         device_info: The dictionary representing the simctl output for a device.
         runtime_name: The name of the runtime that the device uses.
         """
 
-        super().__init__(device_info, isim.SimulatorControlType.device)
+        super().__init__(device_info, SimulatorControlType.device)
         self.runtime_name = runtime_name
         self._runtime = None
-        self._update_info(device_info)
-
-    def _update_info(self, device_info: Dict[str, Any]) -> None:
         self.raw_info = device_info
         self.state = device_info["state"]
         self.availability = device_info["availability"]
@@ -47,85 +46,131 @@ class Device(isim.SimulatorControlBase):
 
     def refresh_state(self) -> None:
         """Refreshes the state by consulting simctl."""
-        device_info = isim.device_info(self.udid)
+        device = Device.from_identifier(self.udid)
+        self.raw_info = device.raw_info
+        self.state = device.state
+        self.availability = device.availability
+        self.name = device.name
+        self.udid = device.udid
 
-        if device_info is None:
-            raise Exception("Could not determine device info.")
-
-        self._update_info(device_info)
-
-    def runtime(self) -> isim.runtime.Runtime:
+    def runtime(self) -> Runtime:
         """Return the runtime of the device."""
         if self._runtime is None:
-            self._runtime = isim.runtime.from_name(self.runtime_name)
+            self._runtime = Runtime.from_name(self.runtime_name)
 
         return self._runtime
 
     def get_app_container(self, app_identifier: str, container: Optional[str] = None) -> str:
         """Get the path of the installed app's container."""
-        return isim.get_app_container(self, app_identifier, container)
+        command = 'get_app_container "%s" "%s"' % (self.udid, app_identifier)
+
+        if container is not None:
+            command += ' "' + container + '"'
+
+        path = self._run_command(command)
+
+        # The path has an extra new line at the end, so remove it when returning
+        #pylint: disable=unsubscriptable-object
+        return path[:-1]
+        #pylint: enable=unsubscriptable-object
 
     def openurl(self, url: str) -> None:
         """Open the url on the device."""
-        isim.openurl(self, url)
+        command = 'openurl "%s" "%s"' % (self.udid, url)
+        self._run_command(command)
 
     def logverbose(self, enable: bool) -> None:
         """Enable or disable verbose logging."""
-        isim.logverbose(self, enable)
+        command = 'logverbose "%s" "%s"' % (self.udid, "enable" if enable else "disable")
+        self._run_command(command)
 
     def icloud_sync(self) -> None:
         """Trigger iCloud sync."""
-        isim.icloud_sync(self)
+        command = 'icloud_sync "%s"' % (self.udid,)
+        self._run_command(command)
 
     def getenv(self, variable_name: str) -> str:
         """Return the specified environment variable."""
-        return isim.getenv(self, variable_name)
+        command = 'getenv "%s" "%s"' % (self.udid, variable_name)
+        variable = self._run_command(command)
+        # The variable has an extra new line at the end, so remove it when returning
+        #pylint: disable=unsubscriptable-object
+        return variable[:-1]
+        #pylint: enable=unsubscriptable-object
 
-    def addmedia(self, paths: List[str]) -> None:
+    def addmedia(self, paths: Union[str, List[str]]) -> None:
         """Add photos, live photos, or videos to the photo library."""
-        return isim.addmedia(self, paths)
+        if isinstance(paths, str):
+            paths = [paths]
+
+        if not paths:
+            return
+
+        command = 'addmedia "%s" ' % (self.udid)
+
+        # Now we need to add the paths
+        quoted_paths = ['"' + path + '"' for path in paths]
+        paths_arg = " ".join(quoted_paths)
+        command += paths_arg
+
+        self._run_command(command)
 
     def terminate(self, app_identifier: str) -> None:
         """Terminate an application by identifier."""
-        isim.terminate_app(self, app_identifier)
+        command = 'terminate "%s" "%s"' % (self.udid, app_identifier)
+        self._run_command(command)
 
     def install(self, path: str) -> None:
         """Install an application from path."""
-        isim.install_app(self, path)
+        command = 'install "%s" "%s"' % (self.udid, path)
+        self._run_command(command)
 
     def uninstall(self, app_identifier: str) -> None:
         """Uninstall an application by identifier."""
-        isim.uninstall_app(self, app_identifier)
+        command = 'uninstall "%s" "%s"' % (self.udid, app_identifier)
+        self._run_command(command)
 
     def delete(self) -> None:
         """Delete the device."""
-        isim.delete_device(self)
+        command = 'delete "%s"' % (self.udid)
+        self._run_command(command)
 
     def rename(self, name: str) -> None:
         """Rename the device."""
-        isim.rename_device(self, name)
+        command = 'rename "%s" "%s"' % (self.udid, name)
+        self._run_command(command)
 
     def boot(self) -> None:
         """Boot the device."""
-        isim.boot_device(self)
+        command = 'boot "%s"' % (self.udid,)
+        self._run_command(command)
 
     def shutdown(self) -> None:
         """Shutdown the device."""
-        isim.shutdown_device(self)
+        command = 'shutdown "%s"' % (self.udid,)
+        self._run_command(command)
 
     def erase(self) -> None:
         """Erases the device's contents and settings."""
-        isim.erase_device(self)
+        command = 'erase "%s"' % (self.udid,)
+        self._run_command(command)
 
-    def upgrade(self, runtime: isim.runtime.Runtime) -> None:
+    def upgrade(self, runtime: Runtime) -> None:
         """Upgrade the device to a newer runtime."""
-        isim.upgrade_device(self, runtime)
+        command = 'upgrade "%s" "%s"' % (self.udid, runtime.identifier)
+        self._run_command(command)
         self._runtime = None
         self.runtime_name = runtime.name
 
     def clone(self, new_name: str) -> str:
         """Clone the device."""
-        return isim.clone_device(self, new_name)
+        command = 'clone "%s" "%s"' % (self.udid, new_name)
+        device_id = self._run_command(command)
+
+        # The device ID has a new line at the end. Strip it when returning.
+        #pylint: disable=unsubscriptable-object
+        return device_id[:-1]
+        #pylint: enable=unsubscriptable-object
 
     def pair(self, other_device: 'Device') -> str:
         """Create a new watch and phone pair."""
@@ -147,96 +192,112 @@ class Device(isim.SimulatorControlBase):
         if watch is None or phone is None:
             raise InvalidDeviceError("One device should be a watch and the other a phone")
 
-        return isim.pair_devices(watch, phone)
+        command = 'pair "%s" "%s"' % (watch.udid, phone.udid)
+        pair_id = self._run_command(command)
+
+        # The pair ID has a new line at the end. Strip it when returning.
+        #pylint: disable=unsubscriptable-object
+        return pair_id[:-1]
+        #pylint: enable=unsubscriptable-object
 
     def __str__(self):
         """Return the string representation of the object."""
         return self.name + ": " + self.udid
 
+    @staticmethod
+    def from_simctl_info(info: Dict[str, List[Dict[str, Any]]]) -> Dict[str, List['Device']]:
+        """Create a new device from the simctl info."""
+        all_devices: Dict[str, List[Device]] = {}
+        for runtime_name in info.keys():
+            runtime_devices_info = info[runtime_name]
+            devices: List['Device'] = []
+            for device_info in runtime_devices_info:
+                devices.append(Device(device_info, runtime_name))
+            all_devices[runtime_name] = devices
+        return all_devices
 
-def from_simctl_info(info: Dict[str, List[Dict[str, Any]]]) -> Dict[str, List[Device]]:
-    """Create a new device from the simctl info."""
-    all_devices: Dict[str, List[Device]] = {}
-    for runtime_name in info.keys():
-        runtime_devices_info = info[runtime_name]
-        devices: List[Device] = []
-        for device_info in runtime_devices_info:
-            devices.append(Device(device_info, runtime_name))
-        all_devices[runtime_name] = devices
-    return all_devices
+    @staticmethod
+    def from_identifier(identifier: str) -> 'Device':
+        """Create a new device from the simctl info."""
+        for _, devices in Device.list_all().items():
+            for device in devices:
+                if device.udid == identifier:
+                    return device
 
+        raise DeviceNotFoundError("No device with ID: " + identifier)
 
-def from_identifier(identifier: str) -> Device:
-    """Create a new device from the simctl info."""
-    for _, devices in list_all().items():
-        for device in devices:
-            if device.udid == identifier:
-                return device
+    @staticmethod
+    def from_name(
+            name: str,
+            runtime: Optional[Runtime] = None
+        ) -> Optional['Device']:
+        """Get a device from the existing devices using the name.
 
-    raise DeviceNotFoundError("No device with ID: " + identifier)
+        If the name matches multiple devices, the runtime is used as a secondary filter (if supplied).
+        If there are still multiple matching devices, an exception is raised.
+        """
 
+        # Only get the ones matching the name (keep track of the runtime_id in case there are multiple)
+        matching_name_devices = []
 
-def from_name(
-        name: str,
-        runtime: Optional[isim.runtime.Runtime] = None
-    ) -> Optional[Device]:
-    """Get a device from the existing devices using the name.
+        for runtime_name, runtime_devices in Device.list_all().items():
+            for device in runtime_devices:
+                if device.name == name:
+                    matching_name_devices.append((device, runtime_name))
 
-    If the name matches multiple devices, the runtime is used as a secondary filter (if supplied).
-    If there are still multiple matching devices, an exception is raised.
-    """
+        # If there were none, then we have none to return
+        if not matching_name_devices:
+            return None
 
-    # Only get the ones matching the name (keep track of the runtime_id in case there are multiple)
-    matching_name_devices = []
+        # If there was 1, then we return it
+        if len(matching_name_devices) == 1:
+            return matching_name_devices[0][0]
 
-    for runtime_name, runtime_devices in list_all().items():
-        for device in runtime_devices:
-            if device.name == name:
-                matching_name_devices.append((device, runtime_name))
+        # If we have more than one, we need a run time in order to differentate between them
+        if runtime is None:
+            raise MultipleMatchesException("Multiple device matches, but no runtime supplied")
 
-    # If there were none, then we have none to return
-    if not matching_name_devices:
-        return None
+        # Get devices where the runtime name matches
+        matching_devices = [device for device in matching_name_devices if device[1] == runtime.name]
 
-    # If there was 1, then we return it
-    if len(matching_name_devices) == 1:
-        return matching_name_devices[0][0]
+        if not matching_devices:
+            return None
 
-    # If we have more than one, we need a run time in order to differentate between them
-    if runtime is None:
-        raise MultipleMatchesException("Multiple device matches, but no runtime supplied")
+        # We should only have one
+        if len(matching_devices) > 1:
+            raise MultipleMatchesException("Multiple device matches even with runtime supplied")
 
-    # Get devices where the runtime name matches
-    matching_devices = [device for device in matching_name_devices if device[1] == runtime.name]
+        return matching_devices[0][0]
 
-    if not matching_devices:
-        return None
+    @staticmethod
+    def create(
+            name: str,
+            device_type: DeviceType,
+            runtime: Runtime
+        ) -> 'Device':
+        """Create a new device."""
+        command = 'create "%s" "%s" "%s"' % (name, device_type.identifier, runtime.identifier)
+        device_id = SimulatorControlBase.run_command(command)
 
-    # We should only have one
-    if len(matching_devices) > 1:
-        raise MultipleMatchesException("Multiple device matches even with runtime supplied")
+        # The device ID has a new line at the end, so strip it.
+        #pylint: disable=unsubscriptable-object
+        device_id = device_id[:-1]
+        #pylint: enable=unsubscriptable-object
 
-    return matching_devices[0][0]
+        return Device.from_identifier(device_id)
 
-def create(
-        name: str,
-        device_type: isim.device_type.DeviceType,
-        runtime: isim.runtime.Runtime
-    ) -> Device:
-    """Create a new device."""
-    device_id = isim.create_device(name, device_type, runtime)
-    return from_identifier(device_id)
+    @staticmethod
+    def delete_unavailable() -> None:
+        """Delete all unavailable devices."""
+        SimulatorControlBase.run_command("delete unavailable")
 
-def delete_unavailable() -> None:
-    """Delete all unavailable devices."""
-    isim.delete_unavailable_devices()
+    @staticmethod
+    def list_all() -> Dict[str, List['Device']]:
+        """Return all available devices."""
+        raw_info = Device.list_all_raw()
+        return Device.from_simctl_info(raw_info)
 
-
-def list_all() -> Dict[str, List[Device]]:
-    """Return all available devices."""
-    raw_info = list_all_raw()
-    return from_simctl_info(raw_info)
-
-def list_all_raw() -> Dict[str, List[Dict[str, Any]]]:
-    """Return all device info."""
-    return isim.list_type(isim.SimulatorControlType.device)
+    @staticmethod
+    def list_all_raw() -> Dict[str, List[Dict[str, Any]]]:
+        """Return all device info."""
+        return SimulatorControlBase.list_type(SimulatorControlType.device)

@@ -17,11 +17,7 @@ class TestDeviceTypes(unittest.TestCase):
             "identifier" : "io.myers.isim.device-type.Apple-Fridge"
         }
 
-        fake_device_types = {
-            "devicetypes": [fake_device_type]
-        }
-
-        device_types = isim.device_type.from_simctl_info(fake_device_types)
+        device_types = isim.DeviceType.from_simctl_info([fake_device_type])
         self.assertEqual(len(device_types), 1)
         device_type = device_types[0]
 
@@ -43,7 +39,7 @@ class TestDeviceTypes(unittest.TestCase):
         self.assertTrue(len(device_type_identifiers) > 0)
 
         device_type_identifier = random.choice(device_type_identifiers)
-        device_type = isim.device_type.from_id(device_type_identifier)
+        device_type = isim.DeviceType.from_id(device_type_identifier)
 
         self.assertIsNotNone(device_type)
         self.assertEqual(device_type.identifier, device_type_identifier)
@@ -58,7 +54,7 @@ class TestDeviceTypes(unittest.TestCase):
         self.assertTrue(len(device_type_names) > 0)
 
         device_type_name = random.choice(device_type_names)
-        device_type = isim.device_type.from_name(device_type_name)
+        device_type = isim.DeviceType.from_name(device_type_name)
 
         self.assertIsNotNone(device_type)
         self.assertEqual(device_type.name, device_type_name)
@@ -66,18 +62,18 @@ class TestDeviceTypes(unittest.TestCase):
     def test_invalid_identifier(self):
         """Test that we don't accidentially match on invalid identifiers."""
         # Identifiers are UUIDs, so let's use something totally different:
-        with self.assertRaises(isim.device_type.DeviceTypeNotFoundError):
-            _ = isim.device_type.from_id("Hodor")
+        with self.assertRaises(isim.DeviceTypeNotFoundError):
+            _ = isim.DeviceType.from_id("Hodor")
 
     def test_invalid_name(self):
         """Test that we don't accidentially match on invalid names."""
         # It's unlikely that anyone would get the exact same UUID as we generate
-        with self.assertRaises(isim.device_type.DeviceTypeNotFoundError):
-            _ = isim.device_type.from_name(str(uuid.uuid4()))
+        with self.assertRaises(isim.DeviceTypeNotFoundError):
+            _ = isim.DeviceType.from_name(str(uuid.uuid4()))
 
     def test_equality(self):
         """Test that the equality check on device types is accurate."""
-        all_device_types = isim.device_type.list_all()
+        all_device_types = isim.DeviceType.list_all()
 
         # We need at least 2 device types to test
         self.assertTrue(len(all_device_types) >= 2)
@@ -95,11 +91,11 @@ class TestDeviceTypes(unittest.TestCase):
         self.assertEqual(device_type_a, device_type_a)
 
         # Checking a copy of one against itself should always be true
-        identifier_copy_a = isim.device_type.from_id(device_type_a.identifier)
+        identifier_copy_a = isim.DeviceType.from_id(device_type_a.identifier)
         self.assertEqual(device_type_a, identifier_copy_a)
 
     def test_string_representations(self):
         """Test that the string representations are unique."""
-        all_device_types = isim.device_type.list_all()
-        strings = {[str(device_type) for device_type in all_device_types]}
+        all_device_types = isim.DeviceType.list_all()
+        strings = {str(device_type) for device_type in all_device_types}
         self.assertEqual(len(strings), len(all_device_types))

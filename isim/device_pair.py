@@ -2,9 +2,9 @@
 
 from typing import Any, Dict, List
 
-import isim
+from isim.base_types import SimulatorControlBase, SimulatorControlType
 
-class DevicePair(isim.SimulatorControlBase):
+class DevicePair(SimulatorControlBase):
     """Represents a device pair for the iOS simulator."""
 
     raw_info: Dict[str, Any]
@@ -18,7 +18,7 @@ class DevicePair(isim.SimulatorControlBase):
         device_pair_identifier: The unique identifier for this device pair.
         device_pair_info: The dictionary representing the simctl output for a device pair.
         """
-        super().__init__(device_pair_info, isim.SimulatorControlType.device_pair)
+        super().__init__(device_pair_info, SimulatorControlType.device_pair)
         self.raw_info = device_pair_info
         self.identifier = device_pair_identifier
         self.watch_udid = device_pair_info["watch"]["udid"]
@@ -34,26 +34,28 @@ class DevicePair(isim.SimulatorControlBase):
 
     def unpair(self) -> None:
         """Unpair a watch and phone pair."""
-        isim.unpair_devices(self)
+        command = 'unpair "%s"' % (self.identifier,)
+        self._run_command(command)
 
     def activate(self) -> None:
         """Activate a pair."""
-        isim.activate_pair(self)
+        command = 'pair_activate "%s"' % (self.identifier,)
+        self._run_command(command)
 
     def __str__(self) -> str:
         """Return the string representation of the object."""
         return self.identifier
 
+    @staticmethod
+    def from_simctl_info(info: Dict[str, Any]) -> List['DevicePair']:
+        """Create a new device pair using the info from simctl."""
+        device_pairs = []
+        for device_pair_identifier, device_pair_info in info.items():
+            device_pairs.append(DevicePair(device_pair_identifier, device_pair_info))
+        return device_pairs
 
-def from_simctl_info(info: Dict[str, Any]) -> List[DevicePair]:
-    """Create a new device pair using the info from simctl."""
-    device_pairs = []
-    for device_pair_identifier, device_pair_info in info.items():
-        device_pairs.append(DevicePair(device_pair_identifier, device_pair_info))
-    return device_pairs
-
-
-def list_all() -> List[DevicePair]:
-    """Return all available device pairs."""
-    device_pair_info = isim.list_type(isim.SimulatorControlType.device_pair)
-    return from_simctl_info(device_pair_info)
+    @staticmethod
+    def list_all() -> List['DevicePair']:
+        """Return all available device pairs."""
+        device_pair_info = SimulatorControlBase.list_type(SimulatorControlType.device_pair)
+        return DevicePair.from_simctl_info(device_pair_info)

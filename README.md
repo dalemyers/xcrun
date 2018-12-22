@@ -6,9 +6,10 @@ This is a Python wrapper around the `xcrun simctl` utility that Apple provides f
 
     xcrun simctl list runtimes
 
-With this module you can print the result of:
+With this module you can simply do:
 
-    isim.list_runtimes()
+    from isim import Runtime
+    print(Runtime.list_all())
 
 Most functions are on the item that they affect. So instead of running something on a device like:
 
@@ -16,7 +17,8 @@ Most functions are on the item that they affect. So instead of running something
 
 You can do this:
 
-    iPhone7 = isim.device.from_name("iPhone 7")
+    from isim import Device
+    iPhone7 = Device.from_name("iPhone 7")
     iPhone7.do_thing(arg1, arg2, ...)
 
 ## Testing
