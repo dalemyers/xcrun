@@ -1,4 +1,4 @@
-# simctl
+# isim
 
 This is a Python wrapper around the `xcrun simctl` utility that Apple provides for interacting with the various Xcode developer tools. 
 
