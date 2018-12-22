@@ -1,21 +1,30 @@
 """Handles the runtimes for xcrun."""
 
+from typing import Any, Dict, List
+
 import xcrun.simctl.listall
 import xcrun.simctl
 
 class RuntimeNotFoundError(Exception):
     """Raised when a requested runtime is not found."""
-    pass
 
-class Runtime(object):
+class Runtime(xcrun.simctl.SimulatorControlBase):
     """Represents a runtime for the iOS simulator."""
 
-    def __init__(self, runtime_info):
+    raw_info: Dict[str, Any]
+    name: str
+    identifier: str
+    version: str
+    availability: str
+    build_version: str
+
+    def __init__(self, runtime_info: Dict[str, Any]) -> None:
         """Construct a Runtime object from xcrun output.
 
         runtime_info: The dictionary representing the xcrun output for a runtime.
         """
 
+        super().__init__(runtime_info, xcrun.simctl.SimulatorControlType.runtime)
         self.raw_info = runtime_info
         self.name = runtime_info["name"]
         self.identifier = runtime_info["identifier"]
@@ -23,32 +32,20 @@ class Runtime(object):
         self.availability = runtime_info["availability"]
         self.build_version = runtime_info["buildversion"]
 
-    def __eq__(self, other):
-        """Override the default Equals behavior"""
-        if not isinstance(other, self.__class__):
-            return False
-
-        return self.raw_info == other.raw_info
-
-    def __ne__(self, other):
-        """Define a non-equality test"""
-        return not self.__eq__(other)
-
-    def __str__(self):
+    def __str__(self) -> str:
         """Return a string representation of the runtime."""
         return "%s: %s" % (self.name, self.identifier)
 
 
-def from_xcrun_info(info):
+def from_xcrun_info(info: List[Dict[str, Any]]) -> List[Runtime]:
     """Create a runtime from the xcrun info."""
-    info = info["runtimes"]
     runtimes = []
     for runtime_info in info:
         runtimes.append(Runtime(runtime_info))
     return runtimes
 
 
-def from_id(identifier):
+def from_id(identifier: str) -> Runtime:
     """Create a runtime by looking up the existing ones matching the supplied identifier."""
     # Get all runtimes
     all_runtimes = xcrun.simctl.listall.runtimes()
@@ -58,7 +55,7 @@ def from_id(identifier):
 
     raise RuntimeNotFoundError()
 
-def from_name(name):
+def from_name(name: str) -> Runtime:
     """Create a runtime by looking up the existing ones matching the supplied name."""
     # Get all runtimes
     all_runtimes = xcrun.simctl.listall.runtimes()

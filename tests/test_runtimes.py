@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+"""Test runtimes."""
 
 import random
 import subprocess
@@ -38,7 +38,7 @@ class TestRuntime(unittest.TestCase):
         """Test that we can create a runtime reference from an existing runtime identifier."""
         # Get a random runtime
         command = "xcrun simctl list runtimes | tail -n +2 | sed 's/.* - //'"
-        runtimes = subprocess.check_output(command, universal_newlines=True, shell=True)
+        runtimes = subprocess.run(command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE).stdout
         runtimes = runtimes.split("\n")
         runtimes = [runtime for runtime in runtimes if len(runtime) > 0]
         self.assertTrue(len(runtimes) > 0)
@@ -53,7 +53,7 @@ class TestRuntime(unittest.TestCase):
         """Test that we can create a runtime reference from an existing runtime name."""
         # Get a random runtime
         command = "xcrun simctl list runtimes | tail -n +2 | sed -e 's/ (.*//'"
-        runtimes = subprocess.check_output(command, universal_newlines=True, shell=True)
+        runtimes = subprocess.run(command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE).stdout
         runtimes = runtimes.split("\n")
         runtimes = [runtime for runtime in runtimes if len(runtime) > 0]
         self.assertTrue(len(runtimes) > 0)
@@ -102,5 +102,5 @@ class TestRuntime(unittest.TestCase):
     def test_string_representations(self):
         """Test that the string representations are unique."""
         all_runtimes = xcrun.simctl.listall.runtimes()
-        strings = set([str(runtime) for runtime in all_runtimes])
+        strings = {str(runtime) for runtime in all_runtimes}
         self.assertEqual(len(strings), len(all_runtimes))
