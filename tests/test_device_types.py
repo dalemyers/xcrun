@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+"""Test device types."""
 
 import random
 import subprocess
@@ -35,13 +35,7 @@ class TestDeviceTypes(unittest.TestCase):
 
         # Get a random device type identifier
         command = "xcrun simctl list devicetypes | tail -n +2 | sed 's/.* (\\(.*\\))/\\1/'"
-        device_type_identifiers = subprocess.run(
-            command,
-            universal_newlines=True,
-            shell=True,
-            check=True,
-            stdout=subprocess.PIPE
-        ).stdout
+        device_type_identifiers = subprocess.run(command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE).stdout
 
         device_type_identifiers = device_type_identifiers.split("\n")
         device_type_identifiers = [identifier for identifier in device_type_identifiers
@@ -58,13 +52,7 @@ class TestDeviceTypes(unittest.TestCase):
         """Test that we can create a device type reference from an existing device type name."""
         # Get a random device type name
         command = "xcrun simctl list devicetypes | tail -n +2 | sed 's/\\(.*\\) (.*)/\\1/'"
-        device_type_names = subprocess.run(
-            command,
-            universal_newlines=True,
-            shell=True,
-            check=True,
-            stdout=subprocess.PIPE
-        ).stdout
+        device_type_names = subprocess.run(command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE).stdout
         device_type_names = device_type_names.split("\n")
         device_type_names = [name for name in device_type_names if len(name) > 0]
         self.assertTrue(len(device_type_names) > 0)
@@ -113,5 +101,5 @@ class TestDeviceTypes(unittest.TestCase):
     def test_string_representations(self):
         """Test that the string representations are unique."""
         all_device_types = xcrun.simctl.listall.device_types()
-        strings = set([str(device_type) for device_type in all_device_types])
+        strings = {[str(device_type) for device_type in all_device_types]}
         self.assertEqual(len(strings), len(all_device_types))

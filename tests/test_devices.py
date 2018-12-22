@@ -1,6 +1,7 @@
-#!/usr/bin/env python3
+"""Test devices."""
 
 import subprocess
+from typing import List
 import unittest
 import uuid
 
@@ -10,8 +11,8 @@ import xcrun.simctl
 class TestDevice(unittest.TestCase):
     """Test device interaction."""
 
-    available_runtimes = []
-    available_device_types = []
+    available_runtimes: List[xcrun.simctl.runtime.Runtime] = []
+    available_device_types: List[xcrun.simctl.device_type.DeviceType] = []
 
     @classmethod
     def setUpClass(cls):
@@ -47,8 +48,8 @@ class TestDevice(unittest.TestCase):
                 # we could be matching watchOS with an iOS device, or
                 # an iOS version with an older device, etc.
                 return False
-            else:
-                raise ex
+
+            raise ex
 
         self.assertIsNotNone(device)
         self.assertEqual(device.name, device_name, "Name did not match: %s, %s" % (device.name, device_name))

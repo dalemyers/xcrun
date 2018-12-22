@@ -38,13 +38,7 @@ class TestRuntime(unittest.TestCase):
         """Test that we can create a runtime reference from an existing runtime identifier."""
         # Get a random runtime
         command = "xcrun simctl list runtimes | tail -n +2 | sed 's/.* - //'"
-        runtimes = subprocess.run(
-            command,
-            universal_newlines=True,
-            shell=True,
-            check=True,
-            stdout=subprocess.PIPE
-        ).stdout
+        runtimes = subprocess.run(command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE).stdout
         runtimes = runtimes.split("\n")
         runtimes = [runtime for runtime in runtimes if len(runtime) > 0]
         self.assertTrue(len(runtimes) > 0)
@@ -59,13 +53,7 @@ class TestRuntime(unittest.TestCase):
         """Test that we can create a runtime reference from an existing runtime name."""
         # Get a random runtime
         command = "xcrun simctl list runtimes | tail -n +2 | sed -e 's/ (.*//'"
-        runtimes = subprocess.run(
-            command,
-            universal_newlines=True,
-            shell=True,
-            check=True,
-            stdout=subprocess.PIPE
-        ).stdout
+        runtimes = subprocess.run(command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE).stdout
         runtimes = runtimes.split("\n")
         runtimes = [runtime for runtime in runtimes if len(runtime) > 0]
         self.assertTrue(len(runtimes) > 0)

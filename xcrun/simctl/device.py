@@ -1,5 +1,7 @@
 """Represents a device for xcrun simctl."""
 
+from typing import Any, Dict, List, Optional
+
 import xcrun.simctl.runtime
 import xcrun.simctl.listall
 import xcrun.simctl
@@ -13,106 +15,119 @@ class DeviceNotFoundError(Exception):
 class InvalidDeviceError(Exception):
     """Raised when a device is not of the correct type."""
 
-class Device:
+class Device(xcrun.simctl.SimulatorControlBase):
     """Represents a device for the iOS simulator."""
 
-    def __init__(self, device_info, runtime_name):
+    runtime_name: str
+    raw_info: Dict[str, Any]
+    state: str
+    availability: str
+    name: str
+    udid: str
+    _runtime: Optional[xcrun.simctl.runtime.Runtime]
+
+    def __init__(self, device_info: Dict[str, Any], runtime_name: str):
         """Construct a Device object from xcrun output and a runtime key.
 
         device_info: The dictionary representing the xcrun output for a device.
         runtime_name: The name of the runtime that the device uses.
         """
 
+        super().__init__(device_info, xcrun.simctl.SimulatorControlType.device)
         self.runtime_name = runtime_name
         self._runtime = None
         self._update_info(device_info)
 
-    def _update_info(self, device_info):
+    def _update_info(self, device_info: Dict[str, Any]) -> None:
         self.raw_info = device_info
         self.state = device_info["state"]
         self.availability = device_info["availability"]
         self.name = device_info["name"]
         self.udid = device_info["udid"]
 
-    def refresh_state(self):
+    def refresh_state(self) -> None:
         """Refreshes the state by consulting xcrun."""
         device_info = xcrun.simctl.device_info(self.udid)
+
+        if device_info is None:
+            raise Exception("Could not determine device info.")
+
         self._update_info(device_info)
 
-    def runtime(self):
+    def runtime(self) -> xcrun.simctl.runtime.Runtime:
         """Return the runtime of the device."""
         if self._runtime is None:
             self._runtime = xcrun.simctl.runtime.from_name(self.runtime_name)
 
         return self._runtime
 
-    def get_app_container(self, app_identifier, container=None):
+    def get_app_container(self, app_identifier: str, container: Optional[str] = None) -> str:
         """Get the path of the installed app's container."""
         return xcrun.simctl.get_app_container(self, app_identifier, container)
 
-    def openurl(self, url):
+    def openurl(self, url: str) -> None:
         """Open the url on the device."""
         xcrun.simctl.openurl(self, url)
 
-    def logverbose(self, enable):
+    def logverbose(self, enable: bool) -> None:
         """Enable or disable verbose logging."""
         xcrun.simctl.logverbose(self, enable)
 
-    def icloud_sync(self):
+    def icloud_sync(self) -> None:
         """Trigger iCloud sync."""
         xcrun.simctl.icloud_sync(self)
 
-    def getenv(self, variable_name):
+    def getenv(self, variable_name: str) -> str:
         """Return the specified environment variable."""
         return xcrun.simctl.getenv(self, variable_name)
 
-    def addmedia(self, paths):
+    def addmedia(self, paths: List[str]) -> None:
         """Add photos, live photos, or videos to the photo library."""
         return xcrun.simctl.addmedia(self, paths)
 
-    def terminate(self, app_identifier):
+    def terminate(self, app_identifier: str) -> None:
         """Terminate an application by identifier."""
         xcrun.simctl.terminate_app(self, app_identifier)
 
-    def install(self, path):
+    def install(self, path: str) -> None:
         """Install an application from path."""
         xcrun.simctl.install_app(self, path)
 
-    def uninstall(self, app_identifier):
+    def uninstall(self, app_identifier: str) -> None:
         """Uninstall an application by identifier."""
         xcrun.simctl.uninstall_app(self, app_identifier)
 
-    def delete(self):
+    def delete(self) -> None:
         """Delete the device."""
         xcrun.simctl.delete_device(self)
 
-    def rename(self, name):
+    def rename(self, name: str) -> None:
         """Rename the device."""
         xcrun.simctl.rename_device(self, name)
 
-    def boot(self):
+    def boot(self) -> None:
         """Boot the device."""
         xcrun.simctl.boot_device(self)
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         """Shutdown the device."""
         xcrun.simctl.shutdown_device(self)
 
-    def erase(self):
+    def erase(self) -> None:
         """Erases the device's contents and settings."""
         xcrun.simctl.erase_device(self)
 
-    def upgrade(self, runtime):
+    def upgrade(self, runtime: xcrun.simctl.runtime.Runtime) -> None:
         """Upgrade the device to a newer runtime."""
         xcrun.simctl.upgrade_device(self, runtime)
         self._runtime = None
         self.runtime_name = runtime.name
 
-    def clone(self, new_name):
+    def clone(self, new_name: str) -> str:
         """Clone the device."""
         return xcrun.simctl.clone_device(self, new_name)
 
-    def pair(self, other_device):
+    def pair(self, other_device: 'Device') -> str:
         """Create a new watch and phone pair."""
         watch = None
         phone = None
@@ -139,20 +154,19 @@ class Device:
         return self.name + ": " + self.udid
 
 
-def from_xcrun_info(info):
+def from_xcrun_info(info: Dict[str, List[Dict[str, Any]]]) -> Dict[str, List[xcrun.simctl.device.Device]]:
     """Create a new device from the xcrun info."""
-    runtime_map = info["devices"]
-    all_devices = {}
-    for runtime_name in runtime_map.keys():
-        runtime_devices_info = runtime_map[runtime_name]
-        devices = []
+    all_devices: Dict[str, List[xcrun.simctl.device.Device]] = {}
+    for runtime_name in info.keys():
+        runtime_devices_info = info[runtime_name]
+        devices: List[xcrun.simctl.device.Device] = []
         for device_info in runtime_devices_info:
             devices.append(Device(device_info, runtime_name))
         all_devices[runtime_name] = devices
     return all_devices
 
 
-def from_identifier(identifier):
+def from_identifier(identifier: str) -> xcrun.simctl.device.Device:
     """Create a new device from the xcrun info."""
     all_devices = xcrun.simctl.listall.devices()
     for _, devices in all_devices.items():
@@ -163,7 +177,10 @@ def from_identifier(identifier):
     raise DeviceNotFoundError("No device with ID: " + identifier)
 
 
-def from_name(name, runtime=None):
+def from_name(
+        name: str,
+        runtime: Optional[xcrun.simctl.runtime.Runtime] = None
+    ) -> Optional[xcrun.simctl.device.Device]:
     """Get a device from the existing devices using the name.
 
     If the name matches multiple devices, the runtime is used as a secondary filter (if supplied).
@@ -206,11 +223,15 @@ def from_name(name, runtime=None):
 
     return matching_devices[0][0]
 
-def create(name, device_type, runtime):
+def create(
+        name: str,
+        device_type: xcrun.simctl.device_type.DeviceType,
+        runtime: xcrun.simctl.runtime.Runtime
+    ) -> xcrun.simctl.device.Device:
     """Create a new device."""
     device_id = xcrun.simctl.create_device(name, device_type, runtime)
     return from_identifier(device_id)
 
-def delete_unavailable():
+def delete_unavailable() -> None:
     """Delete all unavailable devices."""
     xcrun.simctl.delete_unavailable_devices()
