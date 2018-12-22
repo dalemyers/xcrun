@@ -1,11 +1,8 @@
 #!/usr/bin/env python3
 
 from os import path
-import warnings
 
 from setuptools import setup, find_packages
-
-warnings.warn("This package is deprecated. It has been replaced by the `isim` package.", DeprecationWarning)
 
 
 def run_setup():
@@ -32,7 +29,7 @@ def run_setup():
         license='MIT',
 
         classifiers=[
-            'Development Status :: 7 - Inactive',
+            'Development Status :: 3 - Alpha',
             'Environment :: MacOS X',
             'Intended Audience :: Developers',
             'License :: OSI Approved :: MIT License',
