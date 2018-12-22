@@ -1,0 +1,47 @@
+
+jobs:
+
+- job: 'Test'
+  pool:
+    vmImage: 'macOS-10.13'
+  strategy:
+    matrix:
+      Python37:
+        python.version: '3.7'
+    maxParallel: 4
+
+  steps:
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '$(python.version)'
+      architecture: 'x64'
+
+  - script: python -m pip install --upgrade pip && pip install -r requirements.txt
+    displayName: 'Install dependencies'
+
+  - script: python -m pylint --rcfile=pylintrc xcrun
+    displayName: 'Lint'
+
+  - script: python -m mypy --ignore-missing-imports xcrun/
+    displayName: 'Type Check'
+
+  - script: |
+      python -m pytest tests --cov=xcrun --cov-report html --cov-report xml --doctest-modules --junitxml=junit/test-results.xml
+    displayName: 'pytest'
+
+  - script: |
+      python inlinecss.py htmlcov
+    displayName: 'Inline CSS'
+      
+  - task: PublishTestResults@2
+    inputs:
+      testResultsFiles: '**/test-results.xml'
+      testRunTitle: 'Python $(python.version)'
+    condition: succeededOrFailed()
+
+  # Publish Code Coverage Results
+  - task: PublishCodeCoverageResults@1
+    inputs:
+      codeCoverageTool: 'cobertura'
+      summaryFileLocation: $(System.DefaultWorkingDirectory)/coverage.xml
+      reportDirectory: $(System.DefaultWorkingDirectory)/htmlcov
