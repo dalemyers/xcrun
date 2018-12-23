@@ -2,6 +2,8 @@
 
 #pylint: disable=too-many-public-methods
 
+import os
+import shlex
 from typing import Any, Dict, List, Optional, Union
 
 from isim.runtime import Runtime
@@ -208,6 +210,14 @@ class Device(SimulatorControlBase):
         #pylint: disable=unsubscriptable-object
         return pair_id[:-1]
         #pylint: enable=unsubscriptable-object
+
+    def screenshot(self, output_path: str) -> None:
+        """Take a screenshot of the device and save to `output_path`."""
+
+        if os.path.exists(output_path):
+            raise FileExistsError("Output file path already exists")
+
+        self._run_command(f'io {self.udid} screenshot {shlex.quote(output_path)}')
 
     def __str__(self):
         """Return the string representation of the object."""
