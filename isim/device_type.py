@@ -11,8 +11,9 @@ class DeviceType(SimulatorControlBase):
     """Represents a device type for the iOS simulator."""
 
     raw_info: Dict[str, str]
-    name: str
+    bundle_path: str
     identifier: str
+    name: str
 
     def __init__(self, device_type_info: Dict[str, str]):
         """Construct a DeviceType object from simctl output.
@@ -21,8 +22,9 @@ class DeviceType(SimulatorControlBase):
         """
         super().__init__(device_type_info, SimulatorControlType.device_type)
         self.raw_info = device_type_info
-        self.name = device_type_info["name"]
+        self.bundle_path = device_type_info["bundlePath"].replace("\\/", "/")
         self.identifier = device_type_info["identifier"]
+        self.name = device_type_info["name"]
 
     def __str__(self) -> str:
         """Return a user readable string representing the device type."""
