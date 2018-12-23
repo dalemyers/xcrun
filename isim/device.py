@@ -3,6 +3,7 @@
 #pylint: disable=too-many-public-methods
 
 import os
+import re
 import shlex
 from typing import Any, Dict, List, Optional, Union
 
@@ -84,6 +85,51 @@ class Device(SimulatorControlBase):
         #pylint: disable=unsubscriptable-object
         return path[:-1]
         #pylint: enable=unsubscriptable-object
+
+    def get_data_directory(self, app_identifier: str) -> Optional[str]:
+        """Get the path of the data directory for the app. (The location where
+        the app can store data, files, etc.)
+
+        There's no real way of doing this. This method works by scanning the
+        installation logs for the simulator to try and find out where the app
+        actually lives.
+        """
+        app_container = self.get_app_container(app_identifier)
+
+        # Drop the *.app
+        app_container = os.path.dirname(app_container)
+
+        data_folder = os.path.join(app_container, "..", "..", "..", "..")
+        mobile_installation_folder = os.path.join(data_folder, "Library", "Logs", "MobileInstallation")
+        mobile_installation_folder = os.path.abspath(mobile_installation_folder)
+
+        log_file_names = os.listdir(mobile_installation_folder)
+
+        # We sort these since we want the latest file (.0) first
+        log_file_names = sorted(log_file_names)
+
+        container_pattern = re.compile(f'.*Data container for {app_identifier} is now at (.*)')
+
+        # We are looking for the last match in the file
+        for log_file in log_file_names:
+            log_path = os.path.join(mobile_installation_folder, log_file)
+
+            with open(log_path, 'r') as log_file_handle:
+                log_lines = log_file_handle.readlines()
+
+            # We want the last mention in the file (i.e. the latest)
+            log_lines.reverse()
+
+            for line in log_lines:
+                matches = container_pattern.findall(line.strip())
+
+                if not matches:
+                    continue
+
+                # We found a match, so return it
+                return matches[0]
+
+        return None
 
     def openurl(self, url: str) -> None:
         """Open the url on the device."""
