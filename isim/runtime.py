@@ -7,6 +7,7 @@ from isim.base_types import SimulatorControlBase, SimulatorControlType
 class RuntimeNotFoundError(Exception):
     """Raised when a requested runtime is not found."""
 
+#pylint: disable=too-many-instance-attributes
 class Runtime(SimulatorControlBase):
     """Represents a runtime for the iOS simulator."""
 

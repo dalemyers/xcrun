@@ -17,6 +17,7 @@ class DeviceNotFoundError(Exception):
 class InvalidDeviceError(Exception):
     """Raised when a device is not of the correct type."""
 
+#pylint: disable=too-many-instance-attributes
 class Device(SimulatorControlBase):
     """Represents a device for the iOS simulator."""
 
