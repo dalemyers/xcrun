@@ -12,23 +12,35 @@ class TestRuntime(unittest.TestCase):
 
     def test_from_info(self):
         """Test that we create a runtime correctly from simctl info."""
+        #pylint: disable=line-too-long
         fake_runtime = {
-            "buildversion" : "ABC123",
-            "availability" : "(available)",
-            "name" : "iOS 99.0",
-            "identifier" : "io.myers.isim.runtime.iOS-99",
-            "version" : "99.0"
+            "availability": "(available)",
+            "availabilityError": "",
+            "buildversion": "ABC123",
+            "bundlePath": "\\/Applications\\/Xcode_10.1.app\\/Contents\\/Developer\\/Platforms\\/iPhoneOS.platform\\/Developer\\/Library\\/CoreSimulator\\/Profiles\\/Runtimes\\/iOS.simruntime",
+            "identifier": "io.myers.isim.runtime.iOS-99",
+            "isAvailable": True,
+            "name": "iOS 99.0",
+            "version": "99.0"
         }
+        #pylint: enable=line-too-long
 
         runtimes = isim.Runtime.from_simctl_info([fake_runtime])
         self.assertEqual(len(runtimes), 1)
         runtime = runtimes[0]
 
-        self.assertEqual(runtime.name, fake_runtime["name"])
-        self.assertEqual(runtime.identifier, fake_runtime["identifier"])
-        self.assertEqual(runtime.version, fake_runtime["version"])
         self.assertEqual(runtime.availability, fake_runtime["availability"])
+        self.assertEqual(runtime.availability_error, fake_runtime["availabilityError"])
         self.assertEqual(runtime.build_version, fake_runtime["buildversion"])
+        self.assertEqual(runtime.bundle_path, fake_runtime["bundlePath"].replace("\\/", "/"))
+        self.assertEqual(runtime.identifier, fake_runtime["identifier"])
+        self.assertEqual(runtime.is_available, fake_runtime["isAvailable"])
+        self.assertEqual(runtime.name, fake_runtime["name"])
+        self.assertEqual(runtime.version, fake_runtime["version"])
+
+    def test_installed_runtimes(self):
+        """Test that we can parse all installed runtimes without error."""
+        self.assertIsNotNone(isim.Runtime.list_all())
 
     def test_from_identifier(self):
         """Test that we can create a runtime reference from an existing runtime identifier."""
