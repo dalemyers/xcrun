@@ -65,6 +65,10 @@ class TestDevice(unittest.TestCase):
 
         return True
 
+    def test_installed_devicess(self):
+        """Test that we can parse all installed devices without error."""
+        self.assertIsNotNone(isim.Device.list_all())
+
     def test_lifecycle(self):
         """Test that we can create new devices in a consistent manner."""
 

@@ -20,12 +20,16 @@ class InvalidDeviceError(Exception):
 class Device(SimulatorControlBase):
     """Represents a device for the iOS simulator."""
 
-    runtime_name: str
     raw_info: Dict[str, Any]
-    state: str
+
+    availability_error: str
     availability: str
+    is_available: str
     name: str
+    runtime_name: str
+    state: str
     udid: str
+
     _runtime: Optional[Runtime]
 
     def __init__(self, device_info: Dict[str, Any], runtime_name: str) -> None:
@@ -36,21 +40,25 @@ class Device(SimulatorControlBase):
         """
 
         super().__init__(device_info, SimulatorControlType.device)
-        self.runtime_name = runtime_name
         self._runtime = None
         self.raw_info = device_info
-        self.state = device_info["state"]
         self.availability = device_info["availability"]
+        self.availability_error = device_info["availabilityError"]
+        self.is_available = device_info["isAvailable"]
         self.name = device_info["name"]
+        self.runtime_name = runtime_name
+        self.state = device_info["state"]
         self.udid = device_info["udid"]
 
     def refresh_state(self) -> None:
         """Refreshes the state by consulting simctl."""
         device = Device.from_identifier(self.udid)
         self.raw_info = device.raw_info
-        self.state = device.state
         self.availability = device.availability
+        self.availability_error = device.availability_error
+        self.is_available = device.is_available
         self.name = device.name
+        self.state = device.state
         self.udid = device.udid
 
     def runtime(self) -> Runtime:
