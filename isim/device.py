@@ -204,6 +204,10 @@ class Device(SimulatorControlBase):
         """Return the string representation of the object."""
         return self.name + ": " + self.udid
 
+    def __repr__(self) -> str:
+        """Return the string programmatic representation of the object."""
+        return str({"runtime_name": self.runtime_name, "raw_info": self.raw_info})
+
     @staticmethod
     def from_simctl_info(info: Dict[str, List[Dict[str, Any]]]) -> Dict[str, List['Device']]:
         """Create a new device from the simctl info."""

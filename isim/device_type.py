@@ -28,6 +28,10 @@ class DeviceType(SimulatorControlBase):
         """Return a user readable string representing the device type."""
         return self.name + ": " + self.identifier
 
+    def __repr__(self) -> str:
+        """Return the string programmatic representation of the object."""
+        return str(self.raw_info)
+
     @staticmethod
     def from_simctl_info(info: List[Dict[str, str]]) -> List['DeviceType']:
         """Create a new device type from the simctl info."""

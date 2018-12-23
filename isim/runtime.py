@@ -35,6 +35,10 @@ class Runtime(SimulatorControlBase):
         """Return a string representation of the runtime."""
         return "%s: %s" % (self.name, self.identifier)
 
+    def __repr__(self) -> str:
+        """Return the string programmatic representation of the object."""
+        return str(self.raw_info)
+
     @staticmethod
     def from_simctl_info(info: List[Dict[str, Any]]) -> List['Runtime']:
         """Create a runtime from the simctl info."""
