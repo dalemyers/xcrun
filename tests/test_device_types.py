@@ -1,27 +1,42 @@
 """Test device types."""
 
+import os
 import random
 import subprocess
+import sys
 import unittest
 import uuid
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+#pylint: disable=wrong-import-position
 import isim
+#pylint: enable=wrong-import-position
+
 
 class TestDeviceTypes(unittest.TestCase):
     """Test the device types wrapper."""
 
+    def test_installed_device_types(self):
+        """Test that we can parse all installed runtimes without error."""
+        self.assertIsNotNone(isim.Runtime.list_all())
+
     def test_from_info(self):
         """Test that we create a device type correctly from simctl info."""
+
+        #pylint: disable=line-too-long
         fake_device_type = {
-            "name" : "Apple Fridge 1.0",
-            "identifier" : "io.myers.isim.device-type.Apple-Fridge"
+            "name": "Apple Fridge 1.0",
+            "bundlePath": "\\/Applications\\/Xcode_10.1.app\\/Contents\\/Developer\\/Platforms\\/WatchOS.platform\\/Developer\\/Library\\/CoreSimulator\\/Profiles\\/DeviceTypes\\/Apple Watch Series 4 - 40mm.simdevicetype",
+            "identifier": "io.myers.isim.device-type.Apple-Fridge"
         }
+        #pylint: enable=line-too-long
 
         device_types = isim.DeviceType.from_simctl_info([fake_device_type])
         self.assertEqual(len(device_types), 1)
         device_type = device_types[0]
 
         self.assertEqual(device_type.name, fake_device_type["name"])
+        self.assertEqual(device_type.bundle_path, fake_device_type["bundlePath"].replace("\\/", "/"))
         self.assertEqual(device_type.identifier, fake_device_type["identifier"])
 
     def test_from_identifier(self):

@@ -1,11 +1,17 @@
 """Test devices."""
 
+import os
 import subprocess
+import sys
 from typing import List
 import unittest
 import uuid
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+#pylint: disable=wrong-import-position
 import isim
+#pylint: enable=wrong-import-position
+
 
 
 class TestDevice(unittest.TestCase):
@@ -43,7 +49,7 @@ class TestDevice(unittest.TestCase):
         try:
             device = isim.Device.create(device_name, available_device_type, available_runtime)
         except subprocess.CalledProcessError as ex:
-            if ex.returncode == 162:
+            if ex.returncode == isim.base_types.ErrorCodes.incompatible_device.value:
                 # This was an incompatible pairing. That's fine since
                 # we could be matching watchOS with an iOS device, or
                 # an iOS version with an older device, etc.
@@ -65,6 +71,10 @@ class TestDevice(unittest.TestCase):
 
         return True
 
+    def test_installed_devicess(self):
+        """Test that we can parse all installed devices without error."""
+        self.assertIsNotNone(isim.Device.list_all())
+
     def test_lifecycle(self):
         """Test that we can create new devices in a consistent manner."""
 
@@ -81,3 +91,8 @@ class TestDevice(unittest.TestCase):
                 if self.run_device_test(available_device_type, available_runtime):
                     # Mark that this device has been tested at least once
                     device_tested = True
+
+
+TestDevice.setUpClass()
+x = TestDevice("test_lifecycle")
+x.test_lifecycle()

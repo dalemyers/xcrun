@@ -46,6 +46,10 @@ class DevicePair(SimulatorControlBase):
         """Return the string representation of the object."""
         return self.identifier
 
+    def __repr__(self) -> str:
+        """Return the string programmatic representation of the object."""
+        return str({"identifier": self.identifier, "raw_info": self.raw_info})
+
     @staticmethod
     def from_simctl_info(info: Dict[str, Any]) -> List['DevicePair']:
         """Create a new device pair using the info from simctl."""

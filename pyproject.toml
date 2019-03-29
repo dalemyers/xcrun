@@ -1,0 +1,43 @@
+[tool.poetry]
+name = "isim"
+version = "0.6.0"
+description = "Python wrapper around the simctl utility"
+
+license = "MIT"
+
+authors = [
+    "Dale Myers <dale@myers.io>"
+]
+
+readme = 'README.md'
+
+repository = "https://github.com/dalemyers/xcrun"
+homepage = "https://github.com/dalemyers/xcrun"
+
+keywords = ['xcode', 'xcrun', 'simctl', 'ios', 'simulator', 'isim']
+
+classifiers = [
+        'Development Status :: 3 - Alpha',
+        'Environment :: MacOS X',
+        'Intended Audience :: Developers',
+        'License :: OSI Approved :: MIT License',
+        'Operating System :: MacOS :: MacOS X',
+        'Programming Language :: Python :: 3',
+        'Programming Language :: Python :: 3.7',
+        'Topic :: Software Development :: Build Tools',
+        'Topic :: Software Development :: Testing',
+        'Topic :: Utilities'
+    ]
+
+[tool.poetry.dependencies]
+python = "^3.7"
+
+[tool.poetry.dev-dependencies]
+mypy = "=0.650"
+pylint = "=2.2.2"
+pytest = "=4.0.2"
+pytest-cov = "=2.6.0"
+
+[build-system]
+requires = ["poetry>=0.12"]
+build-backend = "poetry.masonry.api"

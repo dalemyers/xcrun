@@ -2,6 +2,9 @@
 
 #pylint: disable=too-many-public-methods
 
+import os
+import re
+import shlex
 from typing import Any, Dict, List, Optional, Union
 
 from isim.runtime import Runtime
@@ -17,46 +20,55 @@ class DeviceNotFoundError(Exception):
 class InvalidDeviceError(Exception):
     """Raised when a device is not of the correct type."""
 
+#pylint: disable=too-many-instance-attributes
 class Device(SimulatorControlBase):
     """Represents a device for the iOS simulator."""
 
-    runtime_name: str
     raw_info: Dict[str, Any]
-    state: str
+
+    availability_error: str
     availability: str
+    is_available: str
     name: str
+    runtime_id: str
+    state: str
     udid: str
+
     _runtime: Optional[Runtime]
 
-    def __init__(self, device_info: Dict[str, Any], runtime_name: str) -> None:
+    def __init__(self, device_info: Dict[str, Any], runtime_id: str) -> None:
         """Construct a Device object from simctl output and a runtime key.
 
         device_info: The dictionary representing the simctl output for a device.
-        runtime_name: The name of the runtime that the device uses.
+        runtime_id: The ID of the runtime that the device uses.
         """
 
         super().__init__(device_info, SimulatorControlType.device)
-        self.runtime_name = runtime_name
         self._runtime = None
         self.raw_info = device_info
-        self.state = device_info["state"]
         self.availability = device_info["availability"]
+        self.availability_error = device_info["availabilityError"]
+        self.is_available = device_info["isAvailable"]
         self.name = device_info["name"]
+        self.runtime_id = runtime_id
+        self.state = device_info["state"]
         self.udid = device_info["udid"]
 
     def refresh_state(self) -> None:
         """Refreshes the state by consulting simctl."""
         device = Device.from_identifier(self.udid)
         self.raw_info = device.raw_info
-        self.state = device.state
         self.availability = device.availability
+        self.availability_error = device.availability_error
+        self.is_available = device.is_available
         self.name = device.name
+        self.state = device.state
         self.udid = device.udid
 
     def runtime(self) -> Runtime:
         """Return the runtime of the device."""
         if self._runtime is None:
-            self._runtime = Runtime.from_name(self.runtime_name)
+            self._runtime = Runtime.from_id(self.runtime_id)
 
         return self._runtime
 
@@ -73,6 +85,51 @@ class Device(SimulatorControlBase):
         #pylint: disable=unsubscriptable-object
         return path[:-1]
         #pylint: enable=unsubscriptable-object
+
+    def get_data_directory(self, app_identifier: str) -> Optional[str]:
+        """Get the path of the data directory for the app. (The location where
+        the app can store data, files, etc.)
+
+        There's no real way of doing this. This method works by scanning the
+        installation logs for the simulator to try and find out where the app
+        actually lives.
+        """
+        app_container = self.get_app_container(app_identifier)
+
+        # Drop the *.app
+        app_container = os.path.dirname(app_container)
+
+        data_folder = os.path.join(app_container, "..", "..", "..", "..")
+        mobile_installation_folder = os.path.join(data_folder, "Library", "Logs", "MobileInstallation")
+        mobile_installation_folder = os.path.abspath(mobile_installation_folder)
+
+        log_file_names = os.listdir(mobile_installation_folder)
+
+        # We sort these since we want the latest file (.0) first
+        log_file_names = sorted(log_file_names)
+
+        container_pattern = re.compile(f'.*Data container for {app_identifier} is now at (.*)')
+
+        # We are looking for the last match in the file
+        for log_file in log_file_names:
+            log_path = os.path.join(mobile_installation_folder, log_file)
+
+            with open(log_path, 'r') as log_file_handle:
+                log_lines = log_file_handle.readlines()
+
+            # We want the last mention in the file (i.e. the latest)
+            log_lines.reverse()
+
+            for line in log_lines:
+                matches = container_pattern.findall(line.strip())
+
+                if not matches:
+                    continue
+
+                # We found a match, so return it
+                return matches[0]
+
+        return None
 
     def openurl(self, url: str) -> None:
         """Open the url on the device."""
@@ -160,7 +217,7 @@ class Device(SimulatorControlBase):
         command = 'upgrade "%s" "%s"' % (self.udid, runtime.identifier)
         self._run_command(command)
         self._runtime = None
-        self.runtime_name = runtime.name
+        self.runtime_id = runtime.identifier
 
     def clone(self, new_name: str) -> str:
         """Clone the device."""
@@ -177,16 +234,16 @@ class Device(SimulatorControlBase):
         watch = None
         phone = None
 
-        if "iOS" in self.runtime_name:
+        if "com.apple.CoreSimulator.SimRuntime.iOS" in self.runtime_name:
             phone = self
 
-        if "iOS" in other_device.runtime_name:
+        if "com.apple.CoreSimulator.SimRuntime.iOS" in other_device.runtime_name:
             phone = other_device
 
-        if "watchOS" in self.runtime_name:
+        if "com.apple.CoreSimulator.SimRuntime.watchOS" in self.runtime_name:
             watch = self
 
-        if "watchOS" in other_device.runtime_name:
+        if "com.apple.CoreSimulator.SimRuntime.watchOS" in other_device.runtime_name:
             watch = other_device
 
         if watch is None or phone is None:
@@ -200,20 +257,32 @@ class Device(SimulatorControlBase):
         return pair_id[:-1]
         #pylint: enable=unsubscriptable-object
 
+    def screenshot(self, output_path: str) -> None:
+        """Take a screenshot of the device and save to `output_path`."""
+
+        if os.path.exists(output_path):
+            raise FileExistsError("Output file path already exists")
+
+        self._run_command(f'io {self.udid} screenshot {shlex.quote(output_path)}')
+
     def __str__(self):
         """Return the string representation of the object."""
         return self.name + ": " + self.udid
+
+    def __repr__(self) -> str:
+        """Return the string programmatic representation of the object."""
+        return str({"runtime_id": self.runtime_id, "raw_info": self.raw_info})
 
     @staticmethod
     def from_simctl_info(info: Dict[str, List[Dict[str, Any]]]) -> Dict[str, List['Device']]:
         """Create a new device from the simctl info."""
         all_devices: Dict[str, List[Device]] = {}
-        for runtime_name in info.keys():
-            runtime_devices_info = info[runtime_name]
+        for runtime_id in info.keys():
+            runtime_devices_info = info[runtime_id]
             devices: List['Device'] = []
             for device_info in runtime_devices_info:
-                devices.append(Device(device_info, runtime_name))
-            all_devices[runtime_name] = devices
+                devices.append(Device(device_info, runtime_id))
+            all_devices[runtime_id] = devices
         return all_devices
 
     @staticmethod
@@ -240,10 +309,10 @@ class Device(SimulatorControlBase):
         # Only get the ones matching the name (keep track of the runtime_id in case there are multiple)
         matching_name_devices = []
 
-        for runtime_name, runtime_devices in Device.list_all().items():
+        for runtime_id, runtime_devices in Device.list_all().items():
             for device in runtime_devices:
                 if device.name == name:
-                    matching_name_devices.append((device, runtime_name))
+                    matching_name_devices.append((device, runtime_id))
 
         # If there were none, then we have none to return
         if not matching_name_devices:
@@ -258,7 +327,7 @@ class Device(SimulatorControlBase):
             raise MultipleMatchesException("Multiple device matches, but no runtime supplied")
 
         # Get devices where the runtime name matches
-        matching_devices = [device for device in matching_name_devices if device[1] == runtime.name]
+        matching_devices = [device for device in matching_name_devices if device[1] == runtime.identifier]
 
         if not matching_devices:
             return None

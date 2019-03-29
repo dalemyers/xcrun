@@ -7,15 +7,19 @@ from isim.base_types import SimulatorControlBase, SimulatorControlType
 class RuntimeNotFoundError(Exception):
     """Raised when a requested runtime is not found."""
 
+#pylint: disable=too-many-instance-attributes
 class Runtime(SimulatorControlBase):
     """Represents a runtime for the iOS simulator."""
 
     raw_info: Dict[str, Any]
-    name: str
-    identifier: str
-    version: str
     availability: str
+    availability_error: str
     build_version: str
+    bundle_path: str
+    identifier: str
+    is_available: bool
+    name: str
+    version: str
 
     def __init__(self, runtime_info: Dict[str, Any]) -> None:
         """Construct a Runtime object from simctl output.
@@ -25,15 +29,22 @@ class Runtime(SimulatorControlBase):
 
         super().__init__(runtime_info, SimulatorControlType.runtime)
         self.raw_info = runtime_info
-        self.name = runtime_info["name"]
-        self.identifier = runtime_info["identifier"]
-        self.version = runtime_info["version"]
         self.availability = runtime_info["availability"]
+        self.availability_error = runtime_info["availabilityError"]
         self.build_version = runtime_info["buildversion"]
+        self.bundle_path = runtime_info["bundlePath"].replace("\\/", "/")
+        self.identifier = runtime_info["identifier"]
+        self.is_available = runtime_info["isAvailable"]
+        self.name = runtime_info["name"]
+        self.version = runtime_info["version"]
 
     def __str__(self) -> str:
         """Return a string representation of the runtime."""
         return "%s: %s" % (self.name, self.identifier)
+
+    def __repr__(self) -> str:
+        """Return the string programmatic representation of the object."""
+        return str(self.raw_info)
 
     @staticmethod
     def from_simctl_info(info: List[Dict[str, Any]]) -> List['Runtime']:

@@ -1,4 +1,4 @@
-# simctl
+# isim
 
 This is a Python wrapper around the `xcrun simctl` utility that Apple provides for interacting with the various Xcode developer tools. 
 
@@ -23,4 +23,4 @@ You can do this:
 
 ## Testing
 
-To run the tests, all you need to do is run `python3 -m tox` (can be installed by running `python3 -m pip install tox`). 
+To run the tests, all you need to do is run `python -m pytest tests` from the root directory.

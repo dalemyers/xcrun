@@ -1,16 +1,14 @@
 """Wrapper around `xcrun simctl`."""
 
-import enum
-import json
-from typing import Any, Dict
+import os
+from typing import List, Optional, Union
+import shlex
 import subprocess
 
 from isim.device import Device, DeviceNotFoundError
 from isim.device_pair import DevicePair
 from isim.device_type import DeviceType, DeviceTypeNotFoundError
 from isim.runtime import Runtime, RuntimeNotFoundError
-
-__version__ = "0.5"
 
 # Advanced:
 
@@ -50,5 +48,69 @@ __version__ = "0.5"
 
 # Won't Do:
 
-#	diagnose            Collect diagnostic information and logs.
 #	help                Prints the usage for a given subcommand.
+
+
+def diagnose(
+        *,
+        output_path: str,
+        all_logs: bool = False,
+        include_data_directory: bool = False,
+        archive: bool = True,
+        timeout: int = 300,
+        udids: Optional[Union[List[str], str]] = None
+    ) -> str:
+    """Run the xcrun simctl diagnose command.
+
+    By default, this will run only for booted devices. Set all_logs to True to
+    gather data for non-booted devices.
+
+    To include the data directory, set include_data_directory to True.
+
+    If udid is set, it will only connect diagnostics from that device. However,
+    if all_logs is set, that will override this setting.
+
+    Returns the location of the archive.
+    """
+
+    output_archive = f'{output_path}.tar.gz'
+
+    if os.path.exists(output_path):
+        raise FileExistsError('The output directory already exists')
+
+    if os.path.exists(output_archive):
+        raise FileExistsError(f'The output archive file already exists: "{output_archive}"')
+
+    # I'm not entirely sure what the '-l' flag does. It's not documented, but if
+    # I don't set it, the command just waits forever without doing anything.
+    # LinkedIn use this flag for their Bluepill tool.
+    full_command = ['xcrun', 'simctl', 'diagnose', '-l', '-b', f'--timeout={timeout}', f'--output={shlex.quote(output_path)}']
+
+    if not archive:
+        full_command.append('--no-archive')
+
+    if include_data_directory:
+        full_command.append('--data-container')
+
+    if all_logs:
+        full_command.append('--all-logs')
+
+    if udids is not None:
+        if isinstance(udids, str):
+            full_command.append(f'--udid={udids}')
+        else:
+            full_command += [f'--udid={udid}' for udid in udids]
+
+    command_string = " ".join(full_command)
+
+    # Let the exception bubble up
+    _ = subprocess.run(
+        command_string,
+        universal_newlines=True,
+        shell=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.STDOUT,
+        check=True
+    )
+
+    return output_archive
