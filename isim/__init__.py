@@ -10,8 +10,6 @@ from isim.device_pair import DevicePair
 from isim.device_type import DeviceType, DeviceTypeNotFoundError
 from isim.runtime import Runtime, RuntimeNotFoundError
 
-__version__ = "0.5"
-
 # Advanced:
 
 #	pbsync              Sync the pasteboard content from one pasteboard to another.

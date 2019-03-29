@@ -23,4 +23,4 @@ You can do this:
 
 ## Testing
 
-To run the tests, all you need to do is run `tox`. If you don't have tox installed already, it can be installed by running `pip install tox --user`. It is recommended that you install tox in a virtual environment.
+To run the tests, all you need to do is run `python -m pytest tests` from the root directory.
