@@ -1,11 +1,17 @@
 """Test runtimes."""
 
+import os
 import random
 import subprocess
+import sys
 import unittest
 import uuid
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+#pylint: disable=wrong-import-position
 import isim
+#pylint: enable=wrong-import-position
+
 
 class TestRuntime(unittest.TestCase):
     """Test the isim runtimes wrapper."""

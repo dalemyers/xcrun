@@ -30,17 +30,17 @@ class Device(SimulatorControlBase):
     availability: str
     is_available: str
     name: str
-    runtime_name: str
+    runtime_id: str
     state: str
     udid: str
 
     _runtime: Optional[Runtime]
 
-    def __init__(self, device_info: Dict[str, Any], runtime_name: str) -> None:
+    def __init__(self, device_info: Dict[str, Any], runtime_id: str) -> None:
         """Construct a Device object from simctl output and a runtime key.
 
         device_info: The dictionary representing the simctl output for a device.
-        runtime_name: The name of the runtime that the device uses.
+        runtime_id: The ID of the runtime that the device uses.
         """
 
         super().__init__(device_info, SimulatorControlType.device)
@@ -50,7 +50,7 @@ class Device(SimulatorControlBase):
         self.availability_error = device_info["availabilityError"]
         self.is_available = device_info["isAvailable"]
         self.name = device_info["name"]
-        self.runtime_name = runtime_name
+        self.runtime_id = runtime_id
         self.state = device_info["state"]
         self.udid = device_info["udid"]
 
@@ -68,7 +68,7 @@ class Device(SimulatorControlBase):
     def runtime(self) -> Runtime:
         """Return the runtime of the device."""
         if self._runtime is None:
-            self._runtime = Runtime.from_name(self.runtime_name)
+            self._runtime = Runtime.from_id(self.runtime_id)
 
         return self._runtime
 
@@ -217,7 +217,7 @@ class Device(SimulatorControlBase):
         command = 'upgrade "%s" "%s"' % (self.udid, runtime.identifier)
         self._run_command(command)
         self._runtime = None
-        self.runtime_name = runtime.name
+        self.runtime_id = runtime.identifier
 
     def clone(self, new_name: str) -> str:
         """Clone the device."""
@@ -234,16 +234,16 @@ class Device(SimulatorControlBase):
         watch = None
         phone = None
 
-        if "iOS" in self.runtime_name:
+        if "com.apple.CoreSimulator.SimRuntime.iOS" in self.runtime_name:
             phone = self
 
-        if "iOS" in other_device.runtime_name:
+        if "com.apple.CoreSimulator.SimRuntime.iOS" in other_device.runtime_name:
             phone = other_device
 
-        if "watchOS" in self.runtime_name:
+        if "com.apple.CoreSimulator.SimRuntime.watchOS" in self.runtime_name:
             watch = self
 
-        if "watchOS" in other_device.runtime_name:
+        if "com.apple.CoreSimulator.SimRuntime.watchOS" in other_device.runtime_name:
             watch = other_device
 
         if watch is None or phone is None:
@@ -271,18 +271,18 @@ class Device(SimulatorControlBase):
 
     def __repr__(self) -> str:
         """Return the string programmatic representation of the object."""
-        return str({"runtime_name": self.runtime_name, "raw_info": self.raw_info})
+        return str({"runtime_id": self.runtime_id, "raw_info": self.raw_info})
 
     @staticmethod
     def from_simctl_info(info: Dict[str, List[Dict[str, Any]]]) -> Dict[str, List['Device']]:
         """Create a new device from the simctl info."""
         all_devices: Dict[str, List[Device]] = {}
-        for runtime_name in info.keys():
-            runtime_devices_info = info[runtime_name]
+        for runtime_id in info.keys():
+            runtime_devices_info = info[runtime_id]
             devices: List['Device'] = []
             for device_info in runtime_devices_info:
-                devices.append(Device(device_info, runtime_name))
-            all_devices[runtime_name] = devices
+                devices.append(Device(device_info, runtime_id))
+            all_devices[runtime_id] = devices
         return all_devices
 
     @staticmethod
@@ -309,10 +309,10 @@ class Device(SimulatorControlBase):
         # Only get the ones matching the name (keep track of the runtime_id in case there are multiple)
         matching_name_devices = []
 
-        for runtime_name, runtime_devices in Device.list_all().items():
+        for runtime_id, runtime_devices in Device.list_all().items():
             for device in runtime_devices:
                 if device.name == name:
-                    matching_name_devices.append((device, runtime_name))
+                    matching_name_devices.append((device, runtime_id))
 
         # If there were none, then we have none to return
         if not matching_name_devices:
@@ -327,7 +327,7 @@ class Device(SimulatorControlBase):
             raise MultipleMatchesException("Multiple device matches, but no runtime supplied")
 
         # Get devices where the runtime name matches
-        matching_devices = [device for device in matching_name_devices if device[1] == runtime.name]
+        matching_devices = [device for device in matching_name_devices if device[1] == runtime.identifier]
 
         if not matching_devices:
             return None

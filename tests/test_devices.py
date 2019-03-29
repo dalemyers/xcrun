@@ -1,11 +1,17 @@
 """Test devices."""
 
+import os
 import subprocess
+import sys
 from typing import List
 import unittest
 import uuid
 
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+#pylint: disable=wrong-import-position
 import isim
+#pylint: enable=wrong-import-position
+
 
 
 class TestDevice(unittest.TestCase):
@@ -85,3 +91,8 @@ class TestDevice(unittest.TestCase):
                 if self.run_device_test(available_device_type, available_runtime):
                     # Mark that this device has been tested at least once
                     device_tested = True
+
+
+TestDevice.setUpClass()
+x = TestDevice("test_lifecycle")
+x.test_lifecycle()
