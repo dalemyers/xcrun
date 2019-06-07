@@ -35,8 +35,8 @@ class TestRuntime(unittest.TestCase):
         self.assertEqual(len(runtimes), 1)
         runtime = runtimes[0]
 
-        self.assertEqual(runtime.availability, fake_runtime["availability"])
-        self.assertEqual(runtime.availability_error, fake_runtime["availabilityError"])
+        self.assertTrue(runtime.availability == fake_runtime["availability"] or runtime.availability is None)
+        self.assertTrue(runtime.availability_error == fake_runtime["availabilityError"] or runtime.availability_error is None)
         self.assertEqual(runtime.build_version, fake_runtime["buildversion"])
         self.assertEqual(runtime.bundle_path, fake_runtime["bundlePath"].replace("\\/", "/"))
         self.assertEqual(runtime.identifier, fake_runtime["identifier"])

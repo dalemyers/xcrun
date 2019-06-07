@@ -22,6 +22,12 @@ class ErrorCodes(enum.Enum):
     # a watchOS runtime.
     incompatible_device = 162
 
+    # Tried to perform an action on the device, but there was an
+    # incompatibility, such as when trying to create a new Apple TV device with
+    # a watchOS runtime.
+    # This seems to be the same as above
+    incompatible_device2 = 163
+
     # The device was in a state where it can't be shutdown. e.g. already
     # shutdown
     unable_to_shutdown_device_in_current_state = 164

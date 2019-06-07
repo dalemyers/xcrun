@@ -49,7 +49,7 @@ class TestDevice(unittest.TestCase):
         try:
             device = isim.Device.create(device_name, available_device_type, available_runtime)
         except subprocess.CalledProcessError as ex:
-            if ex.returncode == isim.base_types.ErrorCodes.incompatible_device.value:
+            if ex.returncode in [isim.base_types.ErrorCodes.incompatible_device.value, isim.base_types.ErrorCodes.incompatible_device2.value]:
                 # This was an incompatible pairing. That's fine since
                 # we could be matching watchOS with an iOS device, or
                 # an iOS version with an older device, etc.
@@ -60,7 +60,8 @@ class TestDevice(unittest.TestCase):
         self.assertIsNotNone(device)
         self.assertEqual(device.name, device_name, "Name did not match: %s, %s" % (device.name, device_name))
         self.assertEqual(device.state.lower(), state, "Device was not shutdown as expected")
-        self.assertEqual(device.availability.lower(), availability, "Device was not available as expected")
+        if device.availability is not None:
+            self.assertEqual(device.availability.lower(), availability, "Device was not available as expected")
         self.assertEqual(
             device.runtime(),
             available_runtime,
@@ -91,8 +92,3 @@ class TestDevice(unittest.TestCase):
                 if self.run_device_test(available_device_type, available_runtime):
                     # Mark that this device has been tested at least once
                     device_tested = True
-
-
-TestDevice.setUpClass()
-x = TestDevice("test_lifecycle")
-x.test_lifecycle()

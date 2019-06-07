@@ -26,7 +26,7 @@ class Device(SimulatorControlBase):
 
     raw_info: Dict[str, Any]
 
-    availability_error: str
+    availability_error: Optional[str]
     availability: Optional[str]
     is_available: str
     name: str
@@ -46,8 +46,8 @@ class Device(SimulatorControlBase):
         super().__init__(device_info, SimulatorControlType.device)
         self._runtime = None
         self.raw_info = device_info
-        self.availability = device_info.get("availability", None)
-        self.availability_error = device_info["availabilityError"]
+        self.availability = device_info.get("availability")
+        self.availability_error = device_info.get("availabilityError")
         self.is_available = device_info["isAvailable"]
         self.name = device_info["name"]
         self.runtime_id = runtime_id
