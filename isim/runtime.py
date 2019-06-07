@@ -1,6 +1,6 @@
 """Handles the runtimes for simctl."""
 
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Optional
 
 from isim.base_types import SimulatorControlBase, SimulatorControlType
 
@@ -12,7 +12,7 @@ class Runtime(SimulatorControlBase):
     """Represents a runtime for the iOS simulator."""
 
     raw_info: Dict[str, Any]
-    availability: str
+    availability: Optional[str]
     availability_error: str
     build_version: str
     bundle_path: str
@@ -29,7 +29,7 @@ class Runtime(SimulatorControlBase):
 
         super().__init__(runtime_info, SimulatorControlType.runtime)
         self.raw_info = runtime_info
-        self.availability = runtime_info["availability"]
+        self.availability = runtime_info.get("availability", None)
         self.availability_error = runtime_info["availabilityError"]
         self.build_version = runtime_info["buildversion"]
         self.bundle_path = runtime_info["bundlePath"].replace("\\/", "/")
