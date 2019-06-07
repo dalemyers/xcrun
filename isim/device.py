@@ -234,16 +234,16 @@ class Device(SimulatorControlBase):
         watch = None
         phone = None
 
-        if "com.apple.CoreSimulator.SimRuntime.iOS" in self.runtime_name:
+        if "com.apple.CoreSimulator.SimRuntime.iOS" in self.runtime_id:
             phone = self
 
-        if "com.apple.CoreSimulator.SimRuntime.iOS" in other_device.runtime_name:
+        if "com.apple.CoreSimulator.SimRuntime.iOS" in other_device.runtime_id:
             phone = other_device
 
-        if "com.apple.CoreSimulator.SimRuntime.watchOS" in self.runtime_name:
+        if "com.apple.CoreSimulator.SimRuntime.watchOS" in self.runtime_id:
             watch = self
 
-        if "com.apple.CoreSimulator.SimRuntime.watchOS" in other_device.runtime_name:
+        if "com.apple.CoreSimulator.SimRuntime.watchOS" in other_device.runtime_id:
             watch = other_device
 
         if watch is None or phone is None:
