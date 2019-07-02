@@ -13,7 +13,6 @@ class Runtime(SimulatorControlBase):
 
     raw_info: Dict[str, Any]
     availability: Optional[str]
-    availability_error: Optional[str]
     build_version: str
     bundle_path: str
     identifier: str
@@ -30,7 +29,6 @@ class Runtime(SimulatorControlBase):
         super().__init__(runtime_info, SimulatorControlType.runtime)
         self.raw_info = runtime_info
         self.availability = runtime_info.get("availability")
-        self.availability_error = runtime_info.get("availabilityError")
         self.build_version = runtime_info["buildversion"]
         self.bundle_path = runtime_info["bundlePath"].replace("\\/", "/")
         self.identifier = runtime_info["identifier"]
