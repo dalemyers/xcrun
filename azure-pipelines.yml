@@ -2,8 +2,7 @@
 jobs:
 
 - job: 'Test'
-  pool:
-    vmImage: 'macOS-10.13'
+  pool: 'Hosted macOS'
   strategy:
     matrix:
       Python37:
