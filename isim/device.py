@@ -26,7 +26,6 @@ class Device(SimulatorControlBase):
 
     raw_info: Dict[str, Any]
 
-    availability_error: str
     availability: Optional[str]
     is_available: str
     name: str
@@ -46,8 +45,7 @@ class Device(SimulatorControlBase):
         super().__init__(device_info, SimulatorControlType.device)
         self._runtime = None
         self.raw_info = device_info
-        self.availability = device_info.get("availability", None)
-        self.availability_error = device_info["availabilityError"]
+        self.availability = device_info.get("availability")
         self.is_available = device_info["isAvailable"]
         self.name = device_info["name"]
         self.runtime_id = runtime_id
@@ -59,7 +57,6 @@ class Device(SimulatorControlBase):
         device = Device.from_identifier(self.udid)
         self.raw_info = device.raw_info
         self.availability = device.availability
-        self.availability_error = device.availability_error
         self.is_available = device.is_available
         self.name = device.name
         self.state = device.state
@@ -234,16 +231,16 @@ class Device(SimulatorControlBase):
         watch = None
         phone = None
 
-        if "com.apple.CoreSimulator.SimRuntime.iOS" in self.runtime_name:
+        if "com.apple.CoreSimulator.SimRuntime.iOS" in self.runtime_id:
             phone = self
 
-        if "com.apple.CoreSimulator.SimRuntime.iOS" in other_device.runtime_name:
+        if "com.apple.CoreSimulator.SimRuntime.iOS" in other_device.runtime_id:
             phone = other_device
 
-        if "com.apple.CoreSimulator.SimRuntime.watchOS" in self.runtime_name:
+        if "com.apple.CoreSimulator.SimRuntime.watchOS" in self.runtime_id:
             watch = self
 
-        if "com.apple.CoreSimulator.SimRuntime.watchOS" in other_device.runtime_name:
+        if "com.apple.CoreSimulator.SimRuntime.watchOS" in other_device.runtime_id:
             watch = other_device
 
         if watch is None or phone is None:

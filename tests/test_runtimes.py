@@ -21,7 +21,6 @@ class TestRuntime(unittest.TestCase):
         #pylint: disable=line-too-long
         fake_runtime = {
             "availability": "(available)",
-            "availabilityError": "",
             "buildversion": "ABC123",
             "bundlePath": "\\/Applications\\/Xcode_10.1.app\\/Contents\\/Developer\\/Platforms\\/iPhoneOS.platform\\/Developer\\/Library\\/CoreSimulator\\/Profiles\\/Runtimes\\/iOS.simruntime",
             "identifier": "io.myers.isim.runtime.iOS-99",
@@ -35,8 +34,7 @@ class TestRuntime(unittest.TestCase):
         self.assertEqual(len(runtimes), 1)
         runtime = runtimes[0]
 
-        self.assertEqual(runtime.availability, fake_runtime["availability"])
-        self.assertEqual(runtime.availability_error, fake_runtime["availabilityError"])
+        self.assertTrue(runtime.availability == fake_runtime["availability"] or runtime.availability is None)
         self.assertEqual(runtime.build_version, fake_runtime["buildversion"])
         self.assertEqual(runtime.bundle_path, fake_runtime["bundlePath"].replace("\\/", "/"))
         self.assertEqual(runtime.identifier, fake_runtime["identifier"])

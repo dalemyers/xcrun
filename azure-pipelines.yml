@@ -2,8 +2,7 @@
 jobs:
 
 - job: 'Test'
-  pool:
-    vmImage: 'macOS-10.13'
+  pool: 'Hosted macOS'
   strategy:
     matrix:
       Python37:
@@ -16,23 +15,45 @@ jobs:
       versionSpec: '$(python.version)'
       architecture: 'x64'
 
-  - script: python -m pip install --upgrade pip && pip install -r requirements.txt
+  - script: |
+      ls -al /Applications | grep -i xcode
+      echo "Current Xcode Version:"
+      xcode-select -p
+    displayName: Show Xcode Versions
+
+  - script: curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
+    displayName: Install Poetry
+
+  - script: python -m venv $(System.DefaultWorkingDirectory)
+    displayName: Create virtual environment
+
+  - script: |
+      source bin/activate
+      $HOME/.poetry/bin/poetry install
     displayName: 'Install dependencies'
 
-  - script: python -m pylint --rcfile=pylintrc isim
+  - script: |
+      source bin/activate
+      python -m pylint --rcfile=pylintrc isim
+      python -m pylint --rcfile=pylintrc tests
     displayName: 'Lint'
 
-  - script: python -m mypy --ignore-missing-imports isim/
+  - script: |
+      source bin/activate
+      python -m mypy --ignore-missing-imports isim/
+      python -m mypy --ignore-missing-imports tests/
     displayName: 'Type Check'
 
   - script: |
+      source bin/activate
       python -m pytest tests --cov=isim --cov-report html --cov-report xml --doctest-modules --junitxml=junit/test-results.xml
     displayName: 'pytest'
 
   - script: |
+      source bin/activate
       python inlinecss.py htmlcov
     displayName: 'Inline CSS'
-      
+
   - task: PublishTestResults@2
     inputs:
       testResultsFiles: '**/test-results.xml'
