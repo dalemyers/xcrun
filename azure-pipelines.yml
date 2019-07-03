@@ -15,7 +15,10 @@ jobs:
       versionSpec: '$(python.version)'
       architecture: 'x64'
 
-  - script: ls -al /Applications/Xcode*
+  - script: |
+      ls -al /Applications | grep -i xcode
+      echo "Current Xcode Version:"
+      xcode-select -p
     displayName: Show Xcode Versions
 
   - script: curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
