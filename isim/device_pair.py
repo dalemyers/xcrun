@@ -26,11 +26,11 @@ class DevicePair(SimulatorControlBase):
 
     def watch(self) -> None:
         """Return the device representing the watch in the pair."""
-        raise NotImplementedError()
+        raise NotImplementedError("Function has not yet been implemented")
 
     def phone(self) -> None:
         """Return the device representing the phone in the pair."""
-        raise NotImplementedError()
+        raise NotImplementedError("Function has not yet been implemented")
 
     def unpair(self) -> None:
         """Unpair a watch and phone pair."""

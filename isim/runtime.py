@@ -60,7 +60,7 @@ class Runtime(SimulatorControlBase):
             if runtime.identifier == identifier:
                 return runtime
 
-        raise RuntimeNotFoundError()
+        raise RuntimeNotFoundError(f"Runtime not found for identifier: {identifier}")
 
     @staticmethod
     def from_name(name: str) -> 'Runtime':
@@ -69,7 +69,7 @@ class Runtime(SimulatorControlBase):
             if runtime.name == name:
                 return runtime
 
-        raise RuntimeNotFoundError()
+        raise RuntimeNotFoundError(f"Runtime not found for name: {name}")
 
     @staticmethod
     def list_all() -> List['Runtime']:
