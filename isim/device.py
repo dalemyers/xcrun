@@ -26,7 +26,6 @@ class Device(SimulatorControlBase):
 
     raw_info: Dict[str, Any]
 
-    availability_error: Optional[str]
     availability: Optional[str]
     is_available: str
     name: str
@@ -47,7 +46,6 @@ class Device(SimulatorControlBase):
         self._runtime = None
         self.raw_info = device_info
         self.availability = device_info.get("availability")
-        self.availability_error = device_info.get("availabilityError")
         self.is_available = device_info["isAvailable"]
         self.name = device_info["name"]
         self.runtime_id = runtime_id
@@ -59,7 +57,6 @@ class Device(SimulatorControlBase):
         device = Device.from_identifier(self.udid)
         self.raw_info = device.raw_info
         self.availability = device.availability
-        self.availability_error = device.availability_error
         self.is_available = device.is_available
         self.name = device.name
         self.state = device.state
