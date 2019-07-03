@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "isim"
-version = "0.8.0"
+version = "11.0.0"
 description = "Python wrapper around the simctl utility"
 
 license = "MIT"
@@ -17,7 +17,7 @@ homepage = "https://github.com/dalemyers/xcrun"
 keywords = ['xcode', 'xcrun', 'simctl', 'ios', 'simulator', 'isim']
 
 classifiers = [
-        'Development Status :: 3 - Alpha',
+        'Development Status :: 4 - Beta',
         'Environment :: MacOS X',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: MIT License',
