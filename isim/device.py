@@ -199,6 +199,11 @@ class Device(SimulatorControlBase):
         command = 'boot "%s"' % (self.udid,)
         self._run_command(command)
 
+    def boot_status(self) -> None:
+        """Get the boot status of the device."""
+        command = 'bootstatus "%s"' % (self.udid,)
+        self._run_command(command)
+
     def shutdown(self) -> None:
         """Shutdown the device."""
         command = 'shutdown "%s"' % (self.udid,)
