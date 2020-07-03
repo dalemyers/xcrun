@@ -49,7 +49,7 @@ class TestDevice(unittest.TestCase):
         try:
             device = isim.Device.create(device_name, available_device_type, available_runtime)
         except subprocess.CalledProcessError as ex:
-            if ex.returncode in [isim.base_types.ErrorCodes.incompatible_device.value, isim.base_types.ErrorCodes.incompatible_device2.value]:
+            if ex.returncode in [isim.base_types.ErrorCodes.incompatible_device.value]:
                 # This was an incompatible pairing. That's fine since
                 # we could be matching watchOS with an iOS device, or
                 # an iOS version with an older device, etc.

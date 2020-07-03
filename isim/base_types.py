@@ -11,26 +11,20 @@ class ErrorCodes(enum.Enum):
 
     # Tried to access a file or directory (such as by searching for an app
     # container) that doesn't exist
-    no_such_file_or_directory = 2
+    #no_such_file_or_directory = 2
 
     # Trying to perform an action on a device type, but supplied an invalid
     # device type
-    invalid_device_type = 161
+    #invalid_device_type = 161
 
     # Tried to perform an action on the device, but there was an
     # incompatibility, such as when trying to create a new Apple TV device with
     # a watchOS runtime.
-    incompatible_device = 162
-
-    # Tried to perform an action on the device, but there was an
-    # incompatibility, such as when trying to create a new Apple TV device with
-    # a watchOS runtime.
-    # This seems to be the same as above
-    incompatible_device2 = 163
+    incompatible_device = 147
 
     # The device was in a state where it can't be shutdown. e.g. already
     # shutdown
-    unable_to_shutdown_device_in_current_state = 164
+    #unable_to_shutdown_device_in_current_state = 164
 
 class SimulatorControlType(enum.Enum):
     """Which type of simulator control type is it."""
