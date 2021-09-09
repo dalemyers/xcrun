@@ -39,7 +39,7 @@ class SimulatorControlType(enum.Enum):
         """Define the key passed into the list function for the type."""
         # Disable this false positive
         # pylint: disable=comparison-with-callable
-        if self.name == "device_type":
+        if self == SimulatorControlType.DEVICE_TYPE:
             return "devicetypes"
         # pylint: enable=comparison-with-callable
         return self.value + "s"
