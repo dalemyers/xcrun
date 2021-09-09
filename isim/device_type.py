@@ -4,8 +4,10 @@ from typing import Dict, List
 
 from isim.base_types import SimulatorControlBase, SimulatorControlType
 
+
 class DeviceTypeNotFoundError(Exception):
     """Raised when a requested device type is not found."""
+
 
 class DeviceType(SimulatorControlBase):
     """Represents a device type for the iOS simulator."""
@@ -35,7 +37,7 @@ class DeviceType(SimulatorControlBase):
         return str(self.raw_info)
 
     @staticmethod
-    def from_simctl_info(info: List[Dict[str, str]]) -> List['DeviceType']:
+    def from_simctl_info(info: List[Dict[str, str]]) -> List["DeviceType"]:
         """Create a new device type from the simctl info."""
         device_types = []
         for device_type_info in info:
@@ -43,7 +45,7 @@ class DeviceType(SimulatorControlBase):
         return device_types
 
     @staticmethod
-    def from_id(identifier: str) -> 'DeviceType':
+    def from_id(identifier: str) -> "DeviceType":
         """Get a device type from its identifier."""
         for device_type in DeviceType.list_all():
             if device_type.identifier == identifier:
@@ -51,7 +53,7 @@ class DeviceType(SimulatorControlBase):
         raise DeviceTypeNotFoundError("No device type matching identifier: " + identifier)
 
     @staticmethod
-    def from_name(name: str) -> 'DeviceType':
+    def from_name(name: str) -> "DeviceType":
         """Create a device type by looking up the existing ones matching the supplied name."""
         # Get all device types
         device_types = DeviceType.list_all()
@@ -63,7 +65,7 @@ class DeviceType(SimulatorControlBase):
         raise DeviceTypeNotFoundError("No device type matching name: " + name)
 
     @staticmethod
-    def list_all() -> List['DeviceType']:
+    def list_all() -> List["DeviceType"]:
         """Return all available device types."""
         device_type_info = SimulatorControlBase.list_type(SimulatorControlType.device_type)
         return DeviceType.from_simctl_info(device_type_info)

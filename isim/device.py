@@ -1,6 +1,6 @@
 """Represents a device for simctl."""
 
-#pylint: disable=too-many-public-methods
+# pylint: disable=too-many-public-methods
 
 import os
 import re
@@ -11,16 +11,20 @@ from isim.runtime import Runtime
 from isim.device_type import DeviceType
 from isim.base_types import SimulatorControlBase, SimulatorControlType
 
+
 class MultipleMatchesException(Exception):
     """Raised when we have multiple matches, but only expect a single one."""
+
 
 class DeviceNotFoundError(Exception):
     """Raised when a requested device is not found."""
 
+
 class InvalidDeviceError(Exception):
     """Raised when a device is not of the correct type."""
 
-#pylint: disable=too-many-instance-attributes
+
+# pylint: disable=too-many-instance-attributes
 class Device(SimulatorControlBase):
     """Represents a device for the iOS simulator."""
 
@@ -79,9 +83,9 @@ class Device(SimulatorControlBase):
         path = self._run_command(command)
 
         # The path has an extra new line at the end, so remove it when returning
-        #pylint: disable=unsubscriptable-object
+        # pylint: disable=unsubscriptable-object
         return path[:-1]
-        #pylint: enable=unsubscriptable-object
+        # pylint: enable=unsubscriptable-object
 
     def get_data_directory(self, app_identifier: str) -> Optional[str]:
         """Get the path of the data directory for the app. (The location where
@@ -97,7 +101,9 @@ class Device(SimulatorControlBase):
         app_container = os.path.dirname(app_container)
 
         data_folder = os.path.join(app_container, "..", "..", "..", "..")
-        mobile_installation_folder = os.path.join(data_folder, "Library", "Logs", "MobileInstallation")
+        mobile_installation_folder = os.path.join(
+            data_folder, "Library", "Logs", "MobileInstallation"
+        )
         mobile_installation_folder = os.path.abspath(mobile_installation_folder)
 
         log_file_names = os.listdir(mobile_installation_folder)
@@ -105,13 +111,13 @@ class Device(SimulatorControlBase):
         # We sort these since we want the latest file (.0) first
         log_file_names = sorted(log_file_names)
 
-        container_pattern = re.compile(f'.*Data container for {app_identifier} is now at (.*)')
+        container_pattern = re.compile(f".*Data container for {app_identifier} is now at (.*)")
 
         # We are looking for the last match in the file
         for log_file in log_file_names:
             log_path = os.path.join(mobile_installation_folder, log_file)
 
-            with open(log_path, 'r') as log_file_handle:
+            with open(log_path, "r") as log_file_handle:
                 log_lines = log_file_handle.readlines()
 
             # We want the last mention in the file (i.e. the latest)
@@ -135,7 +141,10 @@ class Device(SimulatorControlBase):
 
     def logverbose(self, enable: bool) -> None:
         """Enable or disable verbose logging."""
-        command = 'logverbose "%s" "%s"' % (self.udid, "enable" if enable else "disable")
+        command = 'logverbose "%s" "%s"' % (
+            self.udid,
+            "enable" if enable else "disable",
+        )
         self._run_command(command)
 
     def icloud_sync(self) -> None:
@@ -148,9 +157,9 @@ class Device(SimulatorControlBase):
         command = 'getenv "%s" "%s"' % (self.udid, variable_name)
         variable = self._run_command(command)
         # The variable has an extra new line at the end, so remove it when returning
-        #pylint: disable=unsubscriptable-object
+        # pylint: disable=unsubscriptable-object
         return variable[:-1]
-        #pylint: enable=unsubscriptable-object
+        # pylint: enable=unsubscriptable-object
 
     def addmedia(self, paths: Union[str, List[str]]) -> None:
         """Add photos, live photos, or videos to the photo library."""
@@ -227,11 +236,11 @@ class Device(SimulatorControlBase):
         device_id = self._run_command(command)
 
         # The device ID has a new line at the end. Strip it when returning.
-        #pylint: disable=unsubscriptable-object
+        # pylint: disable=unsubscriptable-object
         return device_id[:-1]
-        #pylint: enable=unsubscriptable-object
+        # pylint: enable=unsubscriptable-object
 
-    def pair(self, other_device: 'Device') -> str:
+    def pair(self, other_device: "Device") -> str:
         """Create a new watch and phone pair."""
         watch = None
         phone = None
@@ -255,9 +264,9 @@ class Device(SimulatorControlBase):
         pair_id = self._run_command(command)
 
         # The pair ID has a new line at the end. Strip it when returning.
-        #pylint: disable=unsubscriptable-object
+        # pylint: disable=unsubscriptable-object
         return pair_id[:-1]
-        #pylint: enable=unsubscriptable-object
+        # pylint: enable=unsubscriptable-object
 
     def screenshot(self, output_path: str) -> None:
         """Take a screenshot of the device and save to `output_path`."""
@@ -265,7 +274,7 @@ class Device(SimulatorControlBase):
         if os.path.exists(output_path):
             raise FileExistsError("Output file path already exists")
 
-        self._run_command(f'io {self.udid} screenshot {shlex.quote(output_path)}')
+        self._run_command(f"io {self.udid} screenshot {shlex.quote(output_path)}")
 
     def __str__(self):
         """Return the string representation of the object."""
@@ -276,19 +285,19 @@ class Device(SimulatorControlBase):
         return str({"runtime_id": self.runtime_id, "raw_info": self.raw_info})
 
     @staticmethod
-    def from_simctl_info(info: Dict[str, List[Dict[str, Any]]]) -> Dict[str, List['Device']]:
+    def from_simctl_info(info: Dict[str, List[Dict[str, Any]]]) -> Dict[str, List["Device"]]:
         """Create a new device from the simctl info."""
         all_devices: Dict[str, List[Device]] = {}
         for runtime_id in info.keys():
             runtime_devices_info = info[runtime_id]
-            devices: List['Device'] = []
+            devices: List["Device"] = []
             for device_info in runtime_devices_info:
                 devices.append(Device(device_info, runtime_id))
             all_devices[runtime_id] = devices
         return all_devices
 
     @staticmethod
-    def from_identifier(identifier: str) -> 'Device':
+    def from_identifier(identifier: str) -> "Device":
         """Create a new device from the simctl info."""
         for _, devices in Device.list_all().items():
             for device in devices:
@@ -298,10 +307,7 @@ class Device(SimulatorControlBase):
         raise DeviceNotFoundError("No device with ID: " + identifier)
 
     @staticmethod
-    def from_name(
-            name: str,
-            runtime: Optional[Runtime] = None
-        ) -> Optional['Device']:
+    def from_name(name: str, runtime: Optional[Runtime] = None) -> Optional["Device"]:
         """Get a device from the existing devices using the name.
 
         If the name matches multiple devices, the runtime is used as a secondary filter (if supplied).
@@ -329,7 +335,9 @@ class Device(SimulatorControlBase):
             raise MultipleMatchesException("Multiple device matches, but no runtime supplied")
 
         # Get devices where the runtime name matches
-        matching_devices = [device for device in matching_name_devices if device[1] == runtime.identifier]
+        matching_devices = [
+            device for device in matching_name_devices if device[1] == runtime.identifier
+        ]
 
         if not matching_devices:
             return None
@@ -341,19 +349,19 @@ class Device(SimulatorControlBase):
         return matching_devices[0][0]
 
     @staticmethod
-    def create(
-            name: str,
-            device_type: DeviceType,
-            runtime: Runtime
-        ) -> 'Device':
+    def create(name: str, device_type: DeviceType, runtime: Runtime) -> "Device":
         """Create a new device."""
-        command = 'create "%s" "%s" "%s"' % (name, device_type.identifier, runtime.identifier)
+        command = 'create "%s" "%s" "%s"' % (
+            name,
+            device_type.identifier,
+            runtime.identifier,
+        )
         device_id = SimulatorControlBase.run_command(command)
 
         # The device ID has a new line at the end, so strip it.
-        #pylint: disable=unsubscriptable-object
+        # pylint: disable=unsubscriptable-object
         device_id = device_id[:-1]
-        #pylint: enable=unsubscriptable-object
+        # pylint: enable=unsubscriptable-object
 
         return Device.from_identifier(device_id)
 
@@ -363,7 +371,7 @@ class Device(SimulatorControlBase):
         SimulatorControlBase.run_command("delete unavailable")
 
     @staticmethod
-    def list_all() -> Dict[str, List['Device']]:
+    def list_all() -> Dict[str, List["Device"]]:
         """Return all available devices."""
         raw_info = Device.list_all_raw()
         return Device.from_simctl_info(raw_info)

@@ -4,6 +4,7 @@ from typing import Any, Dict, List
 
 from isim.base_types import SimulatorControlBase, SimulatorControlType
 
+
 class DevicePair(SimulatorControlBase):
     """Represents a device pair for the iOS simulator."""
 
@@ -51,7 +52,7 @@ class DevicePair(SimulatorControlBase):
         return str({"identifier": self.identifier, "raw_info": self.raw_info})
 
     @staticmethod
-    def from_simctl_info(info: Dict[str, Any]) -> List['DevicePair']:
+    def from_simctl_info(info: Dict[str, Any]) -> List["DevicePair"]:
         """Create a new device pair using the info from simctl."""
         device_pairs = []
         for device_pair_identifier, device_pair_info in info.items():
@@ -59,7 +60,7 @@ class DevicePair(SimulatorControlBase):
         return device_pairs
 
     @staticmethod
-    def list_all() -> List['DevicePair']:
+    def list_all() -> List["DevicePair"]:
         """Return all available device pairs."""
         device_pair_info = SimulatorControlBase.list_type(SimulatorControlType.device_pair)
         return DevicePair.from_simctl_info(device_pair_info)

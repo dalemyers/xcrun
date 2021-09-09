@@ -7,10 +7,11 @@ import sys
 import unittest
 import uuid
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-#pylint: disable=wrong-import-position
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# pylint: disable=wrong-import-position
 import isim
-#pylint: enable=wrong-import-position
+
+# pylint: enable=wrong-import-position
 
 
 class TestRuntime(unittest.TestCase):
@@ -18,7 +19,7 @@ class TestRuntime(unittest.TestCase):
 
     def test_from_info(self):
         """Test that we create a runtime correctly from simctl info."""
-        #pylint: disable=line-too-long
+        # pylint: disable=line-too-long
         fake_runtime = {
             "availability": "(available)",
             "buildversion": "ABC123",
@@ -26,15 +27,17 @@ class TestRuntime(unittest.TestCase):
             "identifier": "io.myers.isim.runtime.iOS-99",
             "isAvailable": True,
             "name": "iOS 99.0",
-            "version": "99.0"
+            "version": "99.0",
         }
-        #pylint: enable=line-too-long
+        # pylint: enable=line-too-long
 
         runtimes = isim.Runtime.from_simctl_info([fake_runtime])
         self.assertEqual(len(runtimes), 1)
         runtime = runtimes[0]
 
-        self.assertTrue(runtime.availability == fake_runtime["availability"] or runtime.availability is None)
+        self.assertTrue(
+            runtime.availability == fake_runtime["availability"] or runtime.availability is None
+        )
         self.assertEqual(runtime.build_version, fake_runtime["buildversion"])
         self.assertEqual(runtime.bundle_path, fake_runtime["bundlePath"].replace("\\/", "/"))
         self.assertEqual(runtime.identifier, fake_runtime["identifier"])
@@ -50,7 +53,9 @@ class TestRuntime(unittest.TestCase):
         """Test that we can create a runtime reference from an existing runtime identifier."""
         # Get a random runtime
         command = "xcrun simctl list runtimes | tail -n +2 | sed 's/.* - //'"
-        runtimes = subprocess.run(command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE).stdout
+        runtimes = subprocess.run(
+            command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE
+        ).stdout
         runtimes = runtimes.split("\n")
         runtimes = [runtime.strip() for runtime in runtimes]
         runtimes = [runtime for runtime in runtimes if len(runtime) > 0]
@@ -66,7 +71,9 @@ class TestRuntime(unittest.TestCase):
         """Test that we can create a runtime reference from an existing runtime name."""
         # Get a random runtime
         command = "xcrun simctl list runtimes | tail -n +2 | sed -e 's/ (.*//'"
-        runtimes = subprocess.run(command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE).stdout
+        runtimes = subprocess.run(
+            command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE
+        ).stdout
         runtimes = runtimes.split("\n")
         runtimes = [runtime for runtime in runtimes if len(runtime) > 0]
         self.assertTrue(len(runtimes) > 0)

@@ -7,11 +7,11 @@ from typing import List
 import unittest
 import uuid
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-#pylint: disable=wrong-import-position
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# pylint: disable=wrong-import-position
 import isim
-#pylint: enable=wrong-import-position
 
+# pylint: enable=wrong-import-position
 
 
 class TestDevice(unittest.TestCase):
@@ -25,12 +25,14 @@ class TestDevice(unittest.TestCase):
         TestDevice.available_runtimes = isim.Runtime.list_all()
         TestDevice.available_device_types = isim.DeviceType.list_all()
 
-
     def run_device_test(self, available_device_type, available_runtime):
         """Run the tests on a device."""
 
         # iDevices should run iOS, watch devices should run watchOS, etc.
-        if "iPhone" in available_device_type.identifier or "iPad" in available_device_type.identifier:
+        if (
+            "iPhone" in available_device_type.identifier
+            or "iPad" in available_device_type.identifier
+        ):
             if "iOS" not in available_runtime.identifier:
                 return False
         elif "Apple-Watch" in available_device_type.identifier:
@@ -58,14 +60,18 @@ class TestDevice(unittest.TestCase):
             raise ex
 
         self.assertIsNotNone(device)
-        self.assertEqual(device.name, device_name, "Name did not match: %s, %s" % (device.name, device_name))
+        self.assertEqual(
+            device.name, device_name, "Name did not match: %s, %s" % (device.name, device_name)
+        )
         self.assertEqual(device.state.lower(), state, "Device was not shutdown as expected")
         if device.availability is not None:
-            self.assertEqual(device.availability.lower(), availability, "Device was not available as expected")
+            self.assertEqual(
+                device.availability.lower(), availability, "Device was not available as expected"
+            )
         self.assertEqual(
             device.runtime(),
             available_runtime,
-            "Runtimes did not match: %s, %s" % (device.runtime(), available_runtime)
+            "Runtimes did not match: %s, %s" % (device.runtime(), available_runtime),
         )
 
         device.delete()

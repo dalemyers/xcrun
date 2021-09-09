@@ -7,10 +7,11 @@ import sys
 import unittest
 import uuid
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
-#pylint: disable=wrong-import-position
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+# pylint: disable=wrong-import-position
 import isim
-#pylint: enable=wrong-import-position
+
+# pylint: enable=wrong-import-position
 
 
 class TestDeviceTypes(unittest.TestCase):
@@ -23,20 +24,22 @@ class TestDeviceTypes(unittest.TestCase):
     def test_from_info(self):
         """Test that we create a device type correctly from simctl info."""
 
-        #pylint: disable=line-too-long
+        # pylint: disable=line-too-long
         fake_device_type = {
             "name": "Apple Fridge 1.0",
             "bundlePath": "\\/Applications\\/Xcode_10.1.app\\/Contents\\/Developer\\/Platforms\\/WatchOS.platform\\/Developer\\/Library\\/CoreSimulator\\/Profiles\\/DeviceTypes\\/Apple Watch Series 4 - 40mm.simdevicetype",
-            "identifier": "io.myers.isim.device-type.Apple-Fridge"
+            "identifier": "io.myers.isim.device-type.Apple-Fridge",
         }
-        #pylint: enable=line-too-long
+        # pylint: enable=line-too-long
 
         device_types = isim.DeviceType.from_simctl_info([fake_device_type])
         self.assertEqual(len(device_types), 1)
         device_type = device_types[0]
 
         self.assertEqual(device_type.name, fake_device_type["name"])
-        self.assertEqual(device_type.bundle_path, fake_device_type["bundlePath"].replace("\\/", "/"))
+        self.assertEqual(
+            device_type.bundle_path, fake_device_type["bundlePath"].replace("\\/", "/")
+        )
         self.assertEqual(device_type.identifier, fake_device_type["identifier"])
 
     def test_from_identifier(self):
@@ -46,11 +49,14 @@ class TestDeviceTypes(unittest.TestCase):
 
         # Get a random device type identifier
         command = "xcrun simctl list devicetypes | tail -n +2 | sed 's/.* (\\(.*\\))/\\1/'"
-        device_type_identifiers = subprocess.run(command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE).stdout
+        device_type_identifiers = subprocess.run(
+            command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE
+        ).stdout
 
         device_type_identifiers = device_type_identifiers.split("\n")
-        device_type_identifiers = [identifier for identifier in device_type_identifiers
-                                   if len(identifier) > 0]
+        device_type_identifiers = [
+            identifier for identifier in device_type_identifiers if len(identifier) > 0
+        ]
         self.assertTrue(len(device_type_identifiers) > 0)
 
         device_type_identifier = random.choice(device_type_identifiers)
@@ -63,7 +69,9 @@ class TestDeviceTypes(unittest.TestCase):
         """Test that we can create a device type reference from an existing device type name."""
         # Get a random device type name
         command = "xcrun simctl list devicetypes | tail -n +2 | sed 's/\\(.*\\) (.*)/\\1/'"
-        device_type_names = subprocess.run(command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE).stdout
+        device_type_names = subprocess.run(
+            command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE
+        ).stdout
         device_type_names = device_type_names.split("\n")
         device_type_names = [name for name in device_type_names if len(name) > 0]
         self.assertTrue(len(device_type_names) > 0)

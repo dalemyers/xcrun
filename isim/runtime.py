@@ -4,10 +4,12 @@ from typing import Any, Dict, List, Optional
 
 from isim.base_types import SimulatorControlBase, SimulatorControlType
 
+
 class RuntimeNotFoundError(Exception):
     """Raised when a requested runtime is not found."""
 
-#pylint: disable=too-many-instance-attributes
+
+# pylint: disable=too-many-instance-attributes
 class Runtime(SimulatorControlBase):
     """Represents a runtime for the iOS simulator."""
 
@@ -45,7 +47,7 @@ class Runtime(SimulatorControlBase):
         return str(self.raw_info)
 
     @staticmethod
-    def from_simctl_info(info: List[Dict[str, Any]]) -> List['Runtime']:
+    def from_simctl_info(info: List[Dict[str, Any]]) -> List["Runtime"]:
         """Create a runtime from the simctl info."""
         runtimes = []
         for runtime_info in info:
@@ -53,7 +55,7 @@ class Runtime(SimulatorControlBase):
         return runtimes
 
     @staticmethod
-    def from_id(identifier: str) -> 'Runtime':
+    def from_id(identifier: str) -> "Runtime":
         """Create a runtime by looking up the existing ones matching the supplied identifier."""
         # Get all runtimes
         for runtime in Runtime.list_all():
@@ -63,7 +65,7 @@ class Runtime(SimulatorControlBase):
         raise RuntimeNotFoundError(f"Runtime not found for identifier: {identifier}")
 
     @staticmethod
-    def from_name(name: str) -> 'Runtime':
+    def from_name(name: str) -> "Runtime":
         """Create a runtime by looking up the existing ones matching the supplied name."""
         for runtime in Runtime.list_all():
             if runtime.name == name:
@@ -72,7 +74,7 @@ class Runtime(SimulatorControlBase):
         raise RuntimeNotFoundError(f"Runtime not found for name: {name}")
 
     @staticmethod
-    def list_all() -> List['Runtime']:
+    def list_all() -> List["Runtime"]:
         """Return all available runtimes."""
         runtime_info = SimulatorControlBase.list_type(SimulatorControlType.runtime)
         return Runtime.from_simctl_info(runtime_info)
