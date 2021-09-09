@@ -28,7 +28,7 @@ class Runtime(SimulatorControlBase):
         runtime_info: The dictionary representing the simctl output for a runtime.
         """
 
-        super().__init__(runtime_info, SimulatorControlType.runtime)
+        super().__init__(runtime_info, SimulatorControlType.RUNTIME)
         self.raw_info = runtime_info
         self.availability = runtime_info.get("availability")
         self.build_version = runtime_info["buildversion"]
@@ -76,5 +76,5 @@ class Runtime(SimulatorControlBase):
     @staticmethod
     def list_all() -> List["Runtime"]:
         """Return all available runtimes."""
-        runtime_info = SimulatorControlBase.list_type(SimulatorControlType.runtime)
+        runtime_info = SimulatorControlBase.list_type(SimulatorControlType.RUNTIME)
         return Runtime.from_simctl_info(runtime_info)

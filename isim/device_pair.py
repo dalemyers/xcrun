@@ -19,7 +19,7 @@ class DevicePair(SimulatorControlBase):
         device_pair_identifier: The unique identifier for this device pair.
         device_pair_info: The dictionary representing the simctl output for a device pair.
         """
-        super().__init__(device_pair_info, SimulatorControlType.device_pair)
+        super().__init__(device_pair_info, SimulatorControlType.DEVICE_PAIR)
         self.raw_info = device_pair_info
         self.identifier = device_pair_identifier
         self.watch_udid = device_pair_info["watch"]["udid"]
@@ -62,5 +62,5 @@ class DevicePair(SimulatorControlBase):
     @staticmethod
     def list_all() -> List["DevicePair"]:
         """Return all available device pairs."""
-        device_pair_info = SimulatorControlBase.list_type(SimulatorControlType.device_pair)
+        device_pair_info = SimulatorControlBase.list_type(SimulatorControlType.DEVICE_PAIR)
         return DevicePair.from_simctl_info(device_pair_info)

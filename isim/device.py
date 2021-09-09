@@ -48,7 +48,7 @@ class Device(SimulatorControlBase):
         runtime_id: The ID of the runtime that the device uses.
         """
 
-        super().__init__(device_info, SimulatorControlType.device)
+        super().__init__(device_info, SimulatorControlType.DEVICE)
         self._runtime = None
         self.raw_info = device_info
         self.availability = device_info.get("availability")
@@ -127,7 +127,7 @@ class Device(SimulatorControlBase):
         for log_file in log_file_names:
             log_path = os.path.join(mobile_installation_folder, log_file)
 
-            with open(log_path, "r") as log_file_handle:
+            with open(log_path, "r", encoding="utf-8") as log_file_handle:
                 log_lines = log_file_handle.readlines()
 
             # We want the last mention in the file (i.e. the latest)
@@ -389,4 +389,4 @@ class Device(SimulatorControlBase):
     @staticmethod
     def list_all_raw() -> Dict[str, List[Dict[str, Any]]]:
         """Return all device info."""
-        return SimulatorControlBase.list_type(SimulatorControlType.device)
+        return SimulatorControlBase.list_type(SimulatorControlType.DEVICE)

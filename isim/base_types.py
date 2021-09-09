@@ -20,7 +20,7 @@ class ErrorCodes(enum.Enum):
     # Tried to perform an action on the device, but there was an
     # incompatibility, such as when trying to create a new Apple TV device with
     # a watchOS runtime.
-    incompatible_device = 147
+    INCOMPATIBLE_DEVICE = 147
 
     # The device was in a state where it can't be shutdown. e.g. already
     # shutdown
@@ -30,10 +30,10 @@ class ErrorCodes(enum.Enum):
 class SimulatorControlType(enum.Enum):
     """Which type of simulator control type is it."""
 
-    device_pair = "pair"
-    runtime = "runtime"
-    device_type = "device_type"
-    device = "device"
+    DEVICE_PAIR = "pair"
+    RUNTIME = "runtime"
+    DEVICE_TYPE = "device_type"
+    DEVICE = "device"
 
     def list_key(self):
         """Define the key passed into the list function for the type."""
@@ -83,7 +83,11 @@ class SimulatorControlBase:
         full_command = "xcrun simctl %s" % (command,)
         # Deliberately don't catch the exception - we want it to bubble up
         return subprocess.run(
-            full_command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE
+            full_command,
+            universal_newlines=True,
+            shell=True,
+            check=True,
+            stdout=subprocess.PIPE,
         ).stdout
 
     @staticmethod
@@ -92,7 +96,11 @@ class SimulatorControlBase:
         full_command = "xcrun simctl list %s --json" % (item.list_key(),)
         # Deliberately don't catch the exception - we want it to bubble up
         output = subprocess.run(
-            full_command, universal_newlines=True, shell=True, check=True, stdout=subprocess.PIPE
+            full_command,
+            universal_newlines=True,
+            shell=True,
+            check=True,
+            stdout=subprocess.PIPE,
         ).stdout
 
         json_output = json.loads(output)

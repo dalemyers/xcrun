@@ -22,7 +22,7 @@ class DeviceType(SimulatorControlBase):
 
         device_type_info: The dictionary representing the simctl output for a device type.
         """
-        super().__init__(device_type_info, SimulatorControlType.device_type)
+        super().__init__(device_type_info, SimulatorControlType.DEVICE_TYPE)
         self.raw_info = device_type_info
         self.bundle_path = device_type_info["bundlePath"].replace("\\/", "/")
         self.identifier = device_type_info["identifier"]
@@ -67,5 +67,5 @@ class DeviceType(SimulatorControlBase):
     @staticmethod
     def list_all() -> List["DeviceType"]:
         """Return all available device types."""
-        device_type_info = SimulatorControlBase.list_type(SimulatorControlType.device_type)
+        device_type_info = SimulatorControlBase.list_type(SimulatorControlType.DEVICE_TYPE)
         return DeviceType.from_simctl_info(device_type_info)
