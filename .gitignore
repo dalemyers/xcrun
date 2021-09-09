@@ -17,3 +17,4 @@ pip-selfcheck.json
 pip-wheel-metadata/**
 pyvenv.cfg
 share
+venv
