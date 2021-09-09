@@ -34,10 +34,12 @@ class Device(SimulatorControlBase):
     is_available: str
     name: str
     runtime_id: str
+    device_type_id: str
     state: str
     udid: str
 
     _runtime: Optional[Runtime]
+    _device_type: Optional[DeviceType]
 
     def __init__(self, device_info: Dict[str, Any], runtime_id: str) -> None:
         """Construct a Device object from simctl output and a runtime key.
@@ -52,6 +54,7 @@ class Device(SimulatorControlBase):
         self.availability = device_info.get("availability")
         self.is_available = device_info["isAvailable"]
         self.name = device_info["name"]
+        self.device_type_id = device_info["deviceTypeIdentifier"]
         self.runtime_id = runtime_id
         self.state = device_info["state"]
         self.udid = device_info["udid"]
@@ -72,6 +75,13 @@ class Device(SimulatorControlBase):
             self._runtime = Runtime.from_id(self.runtime_id)
 
         return self._runtime
+
+    def device_type(self) -> DeviceType:
+        """Return the device type of the device."""
+        if self._device_type is None:
+            self._device_type = DeviceType.from_id(self.device_type_id)
+
+        return self._device_type
 
     def get_app_container(self, app_identifier: str, container: Optional[str] = None) -> str:
         """Get the path of the installed app's container."""
