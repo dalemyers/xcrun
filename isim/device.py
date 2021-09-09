@@ -50,6 +50,7 @@ class Device(SimulatorControlBase):
 
         super().__init__(device_info, SimulatorControlType.DEVICE)
         self._runtime = None
+        self._device_type = None
         self.raw_info = device_info
         self.availability = device_info.get("availability")
         self.is_available = device_info["isAvailable"]
