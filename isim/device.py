@@ -380,6 +380,16 @@ class Device(SimulatorControlBase):
     def delete_unavailable() -> None:
         """Delete all unavailable devices."""
         SimulatorControlBase.run_command("delete unavailable")
+        
+    @staticmethod
+    def delete_all() -> None:
+        """Delete all devices."""
+        SimulatorControlBase.run_command("delete all")
+        
+    @staticmethod
+    def erase_all() -> None:
+        """Erase all devices."""
+        SimulatorControlBase.run_command("erase all")
 
     @staticmethod
     def list_all() -> Dict[str, List["Device"]]:
