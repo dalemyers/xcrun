@@ -48,6 +48,11 @@ jobs:
 
   - script: |
       source bin/activate
+      python -m black --check --line-length 100 isim tests
+    displayName: Run Black
+
+  - script: |
+      source bin/activate
       python -m pytest tests --cov=isim --cov-report html --cov-report xml --doctest-modules --junitxml=junit/test-results.xml
     displayName: 'pytest'
 
