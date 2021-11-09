@@ -5,8 +5,12 @@ jobs:
   pool: 'Hosted macOS'
   strategy:
     matrix:
-      Python37:
+      Python3_7:
         python.version: '3.7'
+      Python3_8:
+        python.version: '3.8'
+      Python3_9:
+        python.version: '3.9'
     maxParallel: 4
 
   steps:
@@ -34,14 +38,12 @@ jobs:
 
   - script: |
       source bin/activate
-      python -m pylint --rcfile=pylintrc isim
-      python -m pylint --rcfile=pylintrc tests
+      python -m pylint --rcfile=pylintrc isim tests
     displayName: 'Lint'
 
   - script: |
       source bin/activate
-      python -m mypy --ignore-missing-imports isim/
-      python -m mypy --ignore-missing-imports tests/
+      python -m mypy --ignore-missing-imports isim/ tests/
     displayName: 'Type Check'
 
   - script: |
