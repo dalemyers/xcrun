@@ -32,6 +32,7 @@ class TestDevice(unittest.TestCase):
         if (
             "iPhone" in available_device_type.identifier
             or "iPad" in available_device_type.identifier
+            or "iPod" in available_device_type.identifier
         ):
             if "iOS" not in available_runtime.identifier:
                 return False
