@@ -392,6 +392,16 @@ class Device(SimulatorControlBase):
         SimulatorControlBase.run_command("erase all")
 
     @staticmethod
+    def delete_all() -> None:
+        """Delete all devices."""
+        SimulatorControlBase.run_command("delete all")
+
+    @staticmethod
+    def erase_all() -> None:
+        """Erase all devices."""
+        SimulatorControlBase.run_command("erase all")
+
+    @staticmethod
     def list_all() -> Dict[str, List["Device"]]:
         """Return all available devices."""
         raw_info = Device.list_all_raw()
