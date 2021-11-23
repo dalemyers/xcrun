@@ -287,15 +287,15 @@ class Device(SimulatorControlBase):
 
         self._run_command(f"io {self.udid} screenshot {shlex.quote(output_path)}")
 
-    def spawn(self, executable: str) -> None:
+    def spawn(self, executable: str) -> str:
         """Spawn a process by executing a given executable on a device."""
         command = 'spawn "%s" %s' % (self.udid, executable)
-        self._run_command(command)
+        return self._run_command(command)
 
-    def launch(self, identifier: str) -> None:
+    def launch(self, identifier: str) -> str:
         """Launch an application by identifier on a device."""
         command = 'launch "%s" "%s"' % (self.udid, identifier)
-        self._run_command(command)
+        return self._run_command(command)
 
     def __str__(self):
         """Return the string representation of the object."""
