@@ -1,6 +1,6 @@
 # isim
 
-![Python Version](https://img.shields.io/pypi/pyversions/isim.svg) ![Xcode 11.0](https://img.shields.io/badge/Xcode-11.0-blue.svg) 
+![Python Version](https://img.shields.io/pypi/pyversions/isim.svg) ![Xcode 11.0](https://img.shields.io/badge/Xcode-13.0+-blue.svg) 
 
 This is a Python wrapper around the `xcrun simctl` utility that Apple provides for interacting with the various Xcode developer tools. 
 
