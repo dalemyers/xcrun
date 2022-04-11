@@ -309,10 +309,11 @@ class Device(SimulatorControlBase):
     def from_simctl_info(info: Dict[str, List[Dict[str, Any]]]) -> Dict[str, List["Device"]]:
         """Create a new device from the simctl info."""
         all_devices: Dict[str, List[Device]] = {}
-        for runtime_id in info.keys():
-            runtime_devices_info = info[runtime_id]
+        for runtime_id, runtime_devices_info in info.items():
             devices: List["Device"] = []
             for device_info in runtime_devices_info:
+                if not device_info.get("isAvailable", False):
+                    continue
                 devices.append(Device(device_info, runtime_id))
             all_devices[runtime_id] = devices
         return all_devices
