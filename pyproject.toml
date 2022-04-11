@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "isim"
-version = "13.2.1"
+version = "13.2.2"
 description = "Python wrapper around the simctl utility"
 
 license = "MIT"
