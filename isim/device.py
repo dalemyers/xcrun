@@ -370,7 +370,7 @@ class Device(SimulatorControlBase):
     @staticmethod
     def create(name: str, device_type: DeviceType, runtime: Runtime) -> "Device":
         """Create a new device."""
-        command = f'create "{name}" "{device_type.identifier}" "{runtime.identifier}"'
+        command = f'create "{name}" {device_type.identifier} {runtime.identifier}'
         device_id = SimulatorControlBase.run_command(command)
 
         # The device ID has a new line at the end, so strip it.
