@@ -40,7 +40,7 @@ class Runtime(SimulatorControlBase):
 
     def __str__(self) -> str:
         """Return a string representation of the runtime."""
-        return "%s: %s" % (self.name, self.identifier)
+        return f"{self.name}: {self.identifier}"
 
     def __repr__(self) -> str:
         """Return the string programmatic representation of the object."""

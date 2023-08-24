@@ -43,9 +43,9 @@ class TestDevice(unittest.TestCase):
             if "tvOS" not in available_runtime.identifier:
                 return False
         else:
-            raise Exception("Unexpected device type: " + available_device_type.identifier)
+            raise ValueError("Unexpected device type: " + available_device_type.identifier)
 
-        device_name = "Test Device (%s)" % (uuid.uuid4(),)
+        device_name = f"Test Device ({uuid.uuid4()})"
         state = "shutdown"
         availability = "(available)"
 
@@ -62,9 +62,7 @@ class TestDevice(unittest.TestCase):
 
         self.assertIsNotNone(device)
         self.assertEqual(
-            device.name,
-            device_name,
-            "Name did not match: %s, %s" % (device.name, device_name),
+            device.name, device_name, f"Name did not match: {device.name}, {device_name}"
         )
         self.assertEqual(device.state.lower(), state, "Device was not shutdown as expected")
         if device.availability is not None:
@@ -76,7 +74,7 @@ class TestDevice(unittest.TestCase):
         self.assertEqual(
             device.runtime(),
             available_runtime,
-            "Runtimes did not match: %s, %s" % (device.runtime(), available_runtime),
+            f"Runtimes did not match: {device.runtime()}, {available_runtime}",
         )
 
         device.delete()
@@ -94,7 +92,6 @@ class TestDevice(unittest.TestCase):
             device_tested = False
 
             for available_runtime in TestDevice.available_runtimes:
-
                 # We only need to test a device once. Doing it any more takes
                 # too long
                 if device_tested:

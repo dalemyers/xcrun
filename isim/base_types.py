@@ -55,12 +55,9 @@ class SimulatorControlBase:
         self.raw_info = raw_info
         self.simctl_type = simctl_type
 
-    # pylint: disable=no-self-use
     def _run_command(self, command: str) -> str:
         """Convenience method for running an xcrun simctl command."""
         return SimulatorControlBase.run_command(command)
-
-    # pylint: enable=no-self-use
 
     def __eq__(self, other: object) -> bool:
         """Override the default Equals behavior"""
@@ -80,7 +77,7 @@ class SimulatorControlBase:
     @staticmethod
     def run_command(command: str) -> str:
         """Run an xcrun simctl command."""
-        full_command = "xcrun simctl %s" % (command,)
+        full_command = f"xcrun simctl {command}"
         # Deliberately don't catch the exception - we want it to bubble up
         return subprocess.run(
             full_command,
@@ -93,7 +90,7 @@ class SimulatorControlBase:
     @staticmethod
     def list_type(item: SimulatorControlType) -> Any:
         """Run an `xcrun simctl` command with JSON output."""
-        full_command = "xcrun simctl list %s --json" % (item.list_key(),)
+        full_command = f"xcrun simctl list {item.list_key()} --json"
         # Deliberately don't catch the exception - we want it to bubble up
         output = subprocess.run(
             full_command,
@@ -106,10 +103,10 @@ class SimulatorControlBase:
         json_output = json.loads(output)
 
         if not isinstance(json_output, dict):
-            raise Exception("Unexpected list type: " + str(type(json_output)))
+            raise TypeError("Unexpected list type: " + str(type(json_output)))
 
         if not json_output.get(item.list_key()):
-            raise Exception(
+            raise ValueError(
                 "Unexpected format for " + item.list_key() + " list type: " + str(json_output)
             )
 

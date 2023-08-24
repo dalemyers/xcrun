@@ -1,76 +1,76 @@
-
 jobs:
+  - job: "Test"
+    pool:
+      vmImage: "macOS-latest"
+    strategy:
+      matrix:
+        Python3_8:
+          python.version: "3.8"
+        Python3_9:
+          python.version: "3.9"
+        Python3_10:
+          python.version: "3.10"
+        Python3_11:
+          python.version: "3.11"
+      maxParallel: 4
 
-- job: 'Test'
-  pool:
-    vmImage: 'macOS-latest'
-  strategy:
-    matrix:
-      Python3_7:
-        python.version: '3.7'
-      Python3_8:
-        python.version: '3.8'
-      Python3_9:
-        python.version: '3.9'
-    maxParallel: 4
+    steps:
+      - task: UsePythonVersion@0
+        inputs:
+          versionSpec: "$(python.version)"
+          architecture: "x64"
 
-  steps:
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: '$(python.version)'
-      architecture: 'x64'
+      - script: |
+          ls -al /Applications | grep -i xcode
+          echo "Current Xcode Version:"
+          xcode-select -p
+        displayName: Show Xcode Versions
 
-  - script: |
-      ls -al /Applications | grep -i xcode
-      echo "Current Xcode Version:"
-      xcode-select -p
-    displayName: Show Xcode Versions
+      - script: curl -sSL https://install.python-poetry.org | python3 -
+        displayName: Install Poetry
 
-  - script: curl -sSL https://raw.githubusercontent.com/sdispater/poetry/master/get-poetry.py | python
-    displayName: Install Poetry
+      - script: python -m venv $(System.DefaultWorkingDirectory)
+        displayName: Create virtual environment
 
-  - script: python -m venv $(System.DefaultWorkingDirectory)
-    displayName: Create virtual environment
+      - script: |
+          source bin/activate
+          $HOME/.poetry/bin/poetry install
+        displayName: "Install dependencies"
 
-  - script: |
-      source bin/activate
-      $HOME/.poetry/bin/poetry install
-    displayName: 'Install dependencies'
+      - script: |
+          source bin/activate
+          python -m pylint --rcfile=pylintrc isim tests
+        displayName: "Lint"
 
-  - script: |
-      source bin/activate
-      python -m pylint --rcfile=pylintrc isim tests
-    displayName: 'Lint'
+      - script: |
+          source bin/activate
+          python -m mypy --ignore-missing-imports isim/ tests/
+        displayName: "Type Check"
 
-  - script: |
-      source bin/activate
-      python -m mypy --ignore-missing-imports isim/ tests/
-    displayName: 'Type Check'
+      - script: |
+          source bin/activate
+          python -m black --check --line-length 100 isim tests
+        displayName: Run Black
 
-  - script: |
-      source bin/activate
-      python -m black --check --line-length 100 isim tests
-    displayName: Run Black
+      - script: |
+          source bin/activate
+          python -m pytest tests --cov=isim --cov-report html --cov-report xml --doctest-modules --junitxml=junit/test-results.xml
+        displayName: "pytest"
 
-  - script: |
-      source bin/activate
-      python -m pytest tests --cov=isim --cov-report html --cov-report xml --doctest-modules --junitxml=junit/test-results.xml
-    displayName: 'pytest'
+      - script: |
+          source bin/activate
+          python inlinecss.py htmlcov
+        displayName: "Inline CSS"
 
-  - script: |
-      source bin/activate
-      python inlinecss.py htmlcov
-    displayName: 'Inline CSS'
+      - task: PublishTestResults@2
+        inputs:
+          testResultsFiles: "**/test-results.xml"
+          testRunTitle: "Python $(python.version)"
+        condition: succeededOrFailed()
 
-  - task: PublishTestResults@2
-    inputs:
-      testResultsFiles: '**/test-results.xml'
-      testRunTitle: 'Python $(python.version)'
-    condition: succeededOrFailed()
-
-  # Publish Code Coverage Results
-  - task: PublishCodeCoverageResults@1
-    inputs:
-      codeCoverageTool: 'cobertura'
-      summaryFileLocation: $(System.DefaultWorkingDirectory)/coverage.xml
-      reportDirectory: $(System.DefaultWorkingDirectory)/htmlcov
+      # Publish Code Coverage Results
+      - task: PublishCodeCoverageResults@1
+        inputs:
+          codeCoverageTool: "cobertura"
+          summaryFileLocation: $(System.DefaultWorkingDirectory)/coverage.xml
+          reportDirectory: $(System.DefaultWorkingDirectory)/htmlcov

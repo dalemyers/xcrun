@@ -86,10 +86,10 @@ class Device(SimulatorControlBase):
 
     def get_app_container(self, app_identifier: str, container: Optional[str] = None) -> str:
         """Get the path of the installed app's container."""
-        command = 'get_app_container "%s" "%s"' % (self.udid, app_identifier)
+        command = f'get_app_container "{self.udid}" "{app_identifier}"'
 
         if container is not None:
-            command += ' "' + container + '"'
+            command += f' "{container}"'
 
         path = self._run_command(command)
 
@@ -147,25 +147,22 @@ class Device(SimulatorControlBase):
 
     def openurl(self, url: str) -> None:
         """Open the url on the device."""
-        command = 'openurl "%s" "%s"' % (self.udid, url)
+        command = f'openurl "{self.udid}" "{url}"'
         self._run_command(command)
 
     def logverbose(self, enable: bool) -> None:
         """Enable or disable verbose logging."""
-        command = 'logverbose "%s" "%s"' % (
-            self.udid,
-            "enable" if enable else "disable",
-        )
+        command = f'logverbose "{self.udid}" "{"enable" if enable else "disable"}"'
         self._run_command(command)
 
     def icloud_sync(self) -> None:
         """Trigger iCloud sync."""
-        command = 'icloud_sync "%s"' % (self.udid,)
+        command = f'icloud_sync "{self.udid}"'
         self._run_command(command)
 
     def getenv(self, variable_name: str) -> str:
         """Return the specified environment variable."""
-        command = 'getenv "%s" "%s"' % (self.udid, variable_name)
+        command = f'getenv "{self.udid}" "{variable_name}"'
         variable = self._run_command(command)
         # The variable has an extra new line at the end, so remove it when returning
         # pylint: disable=unsubscriptable-object
@@ -180,7 +177,7 @@ class Device(SimulatorControlBase):
         if not paths:
             return
 
-        command = 'addmedia "%s" ' % (self.udid)
+        command = f'addmedia "{self.udid}" '
 
         # Now we need to add the paths
         quoted_paths = ['"' + path + '"' for path in paths]
@@ -191,59 +188,59 @@ class Device(SimulatorControlBase):
 
     def terminate(self, app_identifier: str) -> None:
         """Terminate an application by identifier."""
-        command = 'terminate "%s" "%s"' % (self.udid, app_identifier)
+        command = f'terminate "{self.udid}" "{app_identifier}"'
         self._run_command(command)
 
     def install(self, path: str) -> None:
         """Install an application from path."""
-        command = 'install "%s" "%s"' % (self.udid, path)
+        command = f'install "{self.udid}" "{path}"'
         self._run_command(command)
 
     def uninstall(self, app_identifier: str) -> None:
         """Uninstall an application by identifier."""
-        command = 'uninstall "%s" "%s"' % (self.udid, app_identifier)
+        command = f'uninstall "{self.udid}" "{app_identifier}"'
         self._run_command(command)
 
     def delete(self) -> None:
         """Delete the device."""
-        command = 'delete "%s"' % (self.udid)
+        command = f'delete "{self.udid}"'
         self._run_command(command)
 
     def rename(self, name: str) -> None:
         """Rename the device."""
-        command = 'rename "%s" "%s"' % (self.udid, name)
+        command = f'rename "{self.udid}" "{name}"'
         self._run_command(command)
 
     def boot(self) -> None:
         """Boot the device."""
-        command = 'boot "%s"' % (self.udid,)
+        command = f'boot "{self.udid}"'
         self._run_command(command)
 
     def boot_status(self) -> None:
         """Get the boot status of the device."""
-        command = 'bootstatus "%s"' % (self.udid,)
+        command = f'bootstatus "{self.udid}"'
         self._run_command(command)
 
     def shutdown(self) -> None:
         """Shutdown the device."""
-        command = 'shutdown "%s"' % (self.udid,)
+        command = f'shutdown "{self.udid}"'
         self._run_command(command)
 
     def erase(self) -> None:
         """Erases the device's contents and settings."""
-        command = 'erase "%s"' % (self.udid,)
+        command = f'erase "{self.udid}"'
         self._run_command(command)
 
     def upgrade(self, runtime: Runtime) -> None:
         """Upgrade the device to a newer runtime."""
-        command = 'upgrade "%s" "%s"' % (self.udid, runtime.identifier)
+        command = f'upgrade "{self.udid}" "{runtime.identifier}"'
         self._run_command(command)
         self._runtime = None
         self.runtime_id = runtime.identifier
 
     def clone(self, new_name: str) -> str:
         """Clone the device."""
-        command = 'clone "%s" "%s"' % (self.udid, new_name)
+        command = f'clone "{self.udid}" "{new_name}"'
         device_id = self._run_command(command)
 
         # The device ID has a new line at the end. Strip it when returning.
@@ -271,7 +268,7 @@ class Device(SimulatorControlBase):
         if watch is None or phone is None:
             raise InvalidDeviceError("One device should be a watch and the other a phone")
 
-        command = 'pair "%s" "%s"' % (watch.udid, phone.udid)
+        command = f'pair "{watch.udid}" "{phone.udid}"'
         pair_id = self._run_command(command)
 
         # The pair ID has a new line at the end. Strip it when returning.
@@ -289,12 +286,12 @@ class Device(SimulatorControlBase):
 
     def spawn(self, executable: str) -> str:
         """Spawn a process by executing a given executable on a device."""
-        command = 'spawn "%s" %s' % (self.udid, executable)
+        command = f'spawn "{self.udid}" {executable}'
         return self._run_command(command)
 
     def launch(self, identifier: str) -> str:
         """Launch an application by identifier on a device."""
-        command = 'launch "%s" "%s"' % (self.udid, identifier)
+        command = f'launch "{self.udid}" "{identifier}"'
         return self._run_command(command)
 
     def __str__(self):
@@ -373,11 +370,7 @@ class Device(SimulatorControlBase):
     @staticmethod
     def create(name: str, device_type: DeviceType, runtime: Runtime) -> "Device":
         """Create a new device."""
-        command = 'create "%s" "%s" "%s"' % (
-            name,
-            device_type.identifier,
-            runtime.identifier,
-        )
+        command = f'create "{name}" "{device_type.identifier}" "{runtime.identifier}"'
         device_id = SimulatorControlBase.run_command(command)
 
         # The device ID has a new line at the end, so strip it.

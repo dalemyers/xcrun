@@ -35,12 +35,12 @@ class DevicePair(SimulatorControlBase):
 
     def unpair(self) -> None:
         """Unpair a watch and phone pair."""
-        command = 'unpair "%s"' % (self.identifier,)
+        command = f'unpair "{self.identifier}"'
         self._run_command(command)
 
     def activate(self) -> None:
         """Activate a pair."""
-        command = 'pair_activate "%s"' % (self.identifier,)
+        command = f'pair_activate "{self.identifier}"'
         self._run_command(command)
 
     def __str__(self) -> str:
