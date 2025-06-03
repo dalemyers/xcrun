@@ -1,7 +1,5 @@
 """Handles simulator device types."""
 
-from typing import Dict, List
-
 from isim.base_types import SimulatorControlBase, SimulatorControlType
 
 
@@ -12,12 +10,12 @@ class DeviceTypeNotFoundError(Exception):
 class DeviceType(SimulatorControlBase):
     """Represents a device type for the iOS simulator."""
 
-    raw_info: Dict[str, str]
+    raw_info: dict[str, str]
     bundle_path: str
     identifier: str
     name: str
 
-    def __init__(self, device_type_info: Dict[str, str]):
+    def __init__(self, device_type_info: dict[str, str]):
         """Construct a DeviceType object from simctl output.
 
         device_type_info: The dictionary representing the simctl output for a device type.
@@ -37,7 +35,7 @@ class DeviceType(SimulatorControlBase):
         return str(self.raw_info)
 
     @staticmethod
-    def from_simctl_info(info: List[Dict[str, str]]) -> List["DeviceType"]:
+    def from_simctl_info(info: list[dict[str, str]]) -> list["DeviceType"]:
         """Create a new device type from the simctl info."""
         device_types = []
         for device_type_info in info:
@@ -50,7 +48,9 @@ class DeviceType(SimulatorControlBase):
         for device_type in DeviceType.list_all():
             if device_type.identifier == identifier:
                 return device_type
-        raise DeviceTypeNotFoundError("No device type matching identifier: " + identifier)
+        raise DeviceTypeNotFoundError(
+            "No device type matching identifier: " + identifier
+        )
 
     @staticmethod
     def from_name(name: str) -> "DeviceType":
@@ -65,7 +65,9 @@ class DeviceType(SimulatorControlBase):
         raise DeviceTypeNotFoundError("No device type matching name: " + name)
 
     @staticmethod
-    def list_all() -> List["DeviceType"]:
+    def list_all() -> list["DeviceType"]:
         """Return all available device types."""
-        device_type_info = SimulatorControlBase.list_type(SimulatorControlType.DEVICE_TYPE)
+        device_type_info = SimulatorControlBase.list_type(
+            SimulatorControlType.DEVICE_TYPE
+        )
         return DeviceType.from_simctl_info(device_type_info)

@@ -1,7 +1,6 @@
 """Wrapper around `xcrun simctl`."""
 
 import os
-from typing import List, Optional, Union
 import shlex
 import subprocess
 
@@ -57,7 +56,7 @@ def diagnose(
     include_data_directory: bool = False,
     archive: bool = True,
     timeout: int = 300,
-    udids: Optional[Union[List[str], str]] = None,
+    udids: list[str] | str | None = None,
 ) -> str:
     """Run the xcrun simctl diagnose command.
 
@@ -78,7 +77,9 @@ def diagnose(
         raise FileExistsError("The output directory already exists")
 
     if os.path.exists(output_archive):
-        raise FileExistsError(f'The output archive file already exists: "{output_archive}"')
+        raise FileExistsError(
+            f'The output archive file already exists: "{output_archive}"'
+        )
 
     # I'm not entirely sure what the '-l' flag does. It's not documented, but if
     # I don't set it, the command just waits forever without doing anything.

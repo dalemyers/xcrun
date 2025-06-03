@@ -1,6 +1,6 @@
 """Handles the runtimes for simctl."""
 
-from typing import Any, Dict, List, Optional
+from typing import Any
 
 from isim.base_types import SimulatorControlBase, SimulatorControlType
 
@@ -13,8 +13,8 @@ class RuntimeNotFoundError(Exception):
 class Runtime(SimulatorControlBase):
     """Represents a runtime for the iOS simulator."""
 
-    raw_info: Dict[str, Any]
-    availability: Optional[str]
+    raw_info: dict[str, Any]
+    availability: str | None
     build_version: str
     bundle_path: str
     identifier: str
@@ -22,7 +22,7 @@ class Runtime(SimulatorControlBase):
     name: str
     version: str
 
-    def __init__(self, runtime_info: Dict[str, Any]) -> None:
+    def __init__(self, runtime_info: dict[str, Any]) -> None:
         """Construct a Runtime object from simctl output.
 
         runtime_info: The dictionary representing the simctl output for a runtime.
@@ -47,7 +47,7 @@ class Runtime(SimulatorControlBase):
         return str(self.raw_info)
 
     @staticmethod
-    def from_simctl_info(info: List[Dict[str, Any]]) -> List["Runtime"]:
+    def from_simctl_info(info: list[dict[str, Any]]) -> list["Runtime"]:
         """Create a runtime from the simctl info."""
         runtimes = []
         for runtime_info in info:
@@ -74,7 +74,7 @@ class Runtime(SimulatorControlBase):
         raise RuntimeNotFoundError(f"Runtime not found for name: {name}")
 
     @staticmethod
-    def list_all() -> List["Runtime"]:
+    def list_all() -> list["Runtime"]:
         """Return all available runtimes."""
         runtime_info = SimulatorControlBase.list_type(SimulatorControlType.RUNTIME)
         return Runtime.from_simctl_info(runtime_info)

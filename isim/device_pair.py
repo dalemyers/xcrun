@@ -1,6 +1,6 @@
 """Handles simulator watch device pairs."""
 
-from typing import Any, Dict, List
+from typing import Any
 
 from isim.base_types import SimulatorControlBase, SimulatorControlType
 
@@ -8,12 +8,14 @@ from isim.base_types import SimulatorControlBase, SimulatorControlType
 class DevicePair(SimulatorControlBase):
     """Represents a device pair for the iOS simulator."""
 
-    raw_info: Dict[str, Any]
+    raw_info: dict[str, Any]
     identifier: str
     watch_udid: str
     phone_udid: str
 
-    def __init__(self, device_pair_identifier: str, device_pair_info: Dict[str, Any]) -> None:
+    def __init__(
+        self, device_pair_identifier: str, device_pair_info: dict[str, Any]
+    ) -> None:
         """Construct a DevicePair object from simctl output.
 
         device_pair_identifier: The unique identifier for this device pair.
@@ -52,7 +54,7 @@ class DevicePair(SimulatorControlBase):
         return str({"identifier": self.identifier, "raw_info": self.raw_info})
 
     @staticmethod
-    def from_simctl_info(info: Dict[str, Any]) -> List["DevicePair"]:
+    def from_simctl_info(info: dict[str, Any]) -> list["DevicePair"]:
         """Create a new device pair using the info from simctl."""
         device_pairs = []
         for device_pair_identifier, device_pair_info in info.items():
@@ -60,7 +62,9 @@ class DevicePair(SimulatorControlBase):
         return device_pairs
 
     @staticmethod
-    def list_all() -> List["DevicePair"]:
+    def list_all() -> list["DevicePair"]:
         """Return all available device pairs."""
-        device_pair_info = SimulatorControlBase.list_type(SimulatorControlType.DEVICE_PAIR)
+        device_pair_info = SimulatorControlBase.list_type(
+            SimulatorControlType.DEVICE_PAIR
+        )
         return DevicePair.from_simctl_info(device_pair_info)

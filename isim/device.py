@@ -5,7 +5,7 @@
 import os
 import re
 import shlex
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Optional
 
 from isim.runtime import Runtime
 from isim.device_type import DeviceType
@@ -28,9 +28,9 @@ class InvalidDeviceError(Exception):
 class Device(SimulatorControlBase):
     """Represents a device for the iOS simulator."""
 
-    raw_info: Dict[str, Any]
+    raw_info: dict[str, Any]
 
-    availability: Optional[str]
+    availability: str | None
     is_available: str
     name: str
     runtime_id: str
@@ -38,10 +38,10 @@ class Device(SimulatorControlBase):
     state: str
     udid: str
 
-    _runtime: Optional[Runtime]
-    _device_type: Optional[DeviceType]
+    _runtime: Runtime | None
+    _device_type: DeviceType | None
 
-    def __init__(self, device_info: Dict[str, Any], runtime_id: str) -> None:
+    def __init__(self, device_info: dict[str, Any], runtime_id: str) -> None:
         """Construct a Device object from simctl output and a runtime key.
 
         device_info: The dictionary representing the simctl output for a device.
@@ -84,7 +84,9 @@ class Device(SimulatorControlBase):
 
         return self._device_type
 
-    def get_app_container(self, app_identifier: str, container: Optional[str] = None) -> str:
+    def get_app_container(
+        self, app_identifier: str, container: str | None = None
+    ) -> str:
         """Get the path of the installed app's container."""
         command = f'get_app_container "{self.udid}" "{app_identifier}"'
 
@@ -98,7 +100,7 @@ class Device(SimulatorControlBase):
         return path[:-1]
         # pylint: enable=unsubscriptable-object
 
-    def get_data_directory(self, app_identifier: str) -> Optional[str]:
+    def get_data_directory(self, app_identifier: str) -> str | None:
         """Get the path of the data directory for the app. (The location where
         the app can store data, files, etc.)
 
@@ -122,7 +124,9 @@ class Device(SimulatorControlBase):
         # We sort these since we want the latest file (.0) first
         log_file_names = sorted(log_file_names)
 
-        container_pattern = re.compile(f".*Data container for {app_identifier} is now at (.*)")
+        container_pattern = re.compile(
+            f".*Data container for {app_identifier} is now at (.*)"
+        )
 
         # We are looking for the last match in the file
         for log_file in log_file_names:
@@ -169,7 +173,7 @@ class Device(SimulatorControlBase):
         return variable[:-1]
         # pylint: enable=unsubscriptable-object
 
-    def addmedia(self, paths: Union[str, List[str]]) -> None:
+    def addmedia(self, paths: str | list[str]) -> None:
         """Add photos, live photos, or videos to the photo library."""
         if isinstance(paths, str):
             paths = [paths]
@@ -266,7 +270,9 @@ class Device(SimulatorControlBase):
             watch = other_device
 
         if watch is None or phone is None:
-            raise InvalidDeviceError("One device should be a watch and the other a phone")
+            raise InvalidDeviceError(
+                "One device should be a watch and the other a phone"
+            )
 
         command = f'pair "{watch.udid}" "{phone.udid}"'
         pair_id = self._run_command(command)
@@ -303,11 +309,13 @@ class Device(SimulatorControlBase):
         return str({"runtime_id": self.runtime_id, "raw_info": self.raw_info})
 
     @staticmethod
-    def from_simctl_info(info: Dict[str, List[Dict[str, Any]]]) -> Dict[str, List["Device"]]:
+    def from_simctl_info(
+        info: dict[str, list[dict[str, Any]]],
+    ) -> dict[str, list["Device"]]:
         """Create a new device from the simctl info."""
-        all_devices: Dict[str, List[Device]] = {}
+        all_devices: dict[str, list[Device]] = {}
         for runtime_id, runtime_devices_info in info.items():
-            devices: List["Device"] = []
+            devices: list["Device"] = []
             for device_info in runtime_devices_info:
                 if not device_info.get("isAvailable", False):
                     continue
@@ -326,7 +334,7 @@ class Device(SimulatorControlBase):
         raise DeviceNotFoundError("No device with ID: " + identifier)
 
     @staticmethod
-    def from_name(name: str, runtime: Optional[Runtime] = None) -> Optional["Device"]:
+    def from_name(name: str, runtime: Runtime | None = None) -> Optional["Device"]:
         """Get a device from the existing devices using the name.
 
         If the name matches multiple devices, the runtime is used as a secondary filter (if supplied).
@@ -351,11 +359,15 @@ class Device(SimulatorControlBase):
 
         # If we have more than one, we need a run time in order to differentate between them
         if runtime is None:
-            raise MultipleMatchesException("Multiple device matches, but no runtime supplied")
+            raise MultipleMatchesException(
+                "Multiple device matches, but no runtime supplied"
+            )
 
         # Get devices where the runtime name matches
         matching_devices = [
-            device for device in matching_name_devices if device[1] == runtime.identifier
+            device
+            for device in matching_name_devices
+            if device[1] == runtime.identifier
         ]
 
         if not matching_devices:
@@ -363,7 +375,9 @@ class Device(SimulatorControlBase):
 
         # We should only have one
         if len(matching_devices) > 1:
-            raise MultipleMatchesException("Multiple device matches even with runtime supplied")
+            raise MultipleMatchesException(
+                "Multiple device matches even with runtime supplied"
+            )
 
         return matching_devices[0][0]
 
@@ -396,12 +410,12 @@ class Device(SimulatorControlBase):
         SimulatorControlBase.run_command("erase all")
 
     @staticmethod
-    def list_all() -> Dict[str, List["Device"]]:
+    def list_all() -> dict[str, list["Device"]]:
         """Return all available devices."""
         raw_info = Device.list_all_raw()
         return Device.from_simctl_info(raw_info)
 
     @staticmethod
-    def list_all_raw() -> Dict[str, List[Dict[str, Any]]]:
+    def list_all_raw() -> dict[str, list[dict[str, Any]]]:
         """Return all device info."""
         return SimulatorControlBase.list_type(SimulatorControlType.DEVICE)
