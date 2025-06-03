@@ -5,6 +5,8 @@
 import os
 import re
 import shlex
+import signal
+import subprocess
 from typing import Any, Optional
 
 from isim.runtime import Runtime
@@ -40,6 +42,7 @@ class Device(SimulatorControlBase):
 
     _runtime: Runtime | None
     _device_type: DeviceType | None
+    _video_recording_process: subprocess.Popen | None = None
 
     def __init__(self, device_info: dict[str, Any], runtime_id: str) -> None:
         """Construct a Device object from simctl output and a runtime key.
@@ -51,6 +54,7 @@ class Device(SimulatorControlBase):
         super().__init__(device_info, SimulatorControlType.DEVICE)
         self._runtime = None
         self._device_type = None
+        self._video_recording_process = None
         self.raw_info = device_info
         self.availability = device_info.get("availability")
         self.is_available = device_info["isAvailable"]
@@ -283,6 +287,49 @@ class Device(SimulatorControlBase):
             raise FileExistsError("Output file path already exists")
 
         self._run_command(f"io {self.udid} screenshot {shlex.quote(output_path)}")
+
+    def start_video_recording(self, output_path: str, force: bool = True) -> None:
+        """Start video recording of the device and save to `output_path`.
+
+        If `force` is True, it will overwrite the file if it already exists.
+        """
+        if os.path.exists(output_path) and not force:
+            raise FileExistsError("Output file path already exists")
+
+        # We can't use the `run_command` method here because we need to keep a reference to the
+        # process in order to stop the recording later.
+        command = ["xcrun", "simctl", "io", self.udid, "recordVideo"]
+
+        if force:
+            command.append("--force")
+
+        command.append(output_path)
+
+        self._video_recording_process = subprocess.Popen(
+            command,
+            universal_newlines=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            bufsize=1,
+            encoding="utf-8",
+        )
+
+        if not self._video_recording_process:
+            raise ChildProcessError("Failed to start video recording process")
+
+        for line in self._video_recording_process.stdout:
+            if "Recording started" in line:
+                return
+
+    def stop_video_recording(self) -> None:
+        """Stop the video recording of the device."""
+        if self._video_recording_process is None:
+            raise RuntimeError("No video recording process is running")
+
+        self._video_recording_process.send_signal(signal.SIGINT)
+
+        self._video_recording_process.wait()
+        self._video_recording_process = None
 
     def spawn(self, executable: str) -> str:
         """Spawn a process by executing a given executable on a device."""
