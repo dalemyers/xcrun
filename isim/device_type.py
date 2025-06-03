@@ -48,9 +48,7 @@ class DeviceType(SimulatorControlBase):
         for device_type in DeviceType.list_all():
             if device_type.identifier == identifier:
                 return device_type
-        raise DeviceTypeNotFoundError(
-            "No device type matching identifier: " + identifier
-        )
+        raise DeviceTypeNotFoundError("No device type matching identifier: " + identifier)
 
     @staticmethod
     def from_name(name: str) -> "DeviceType":
@@ -67,7 +65,5 @@ class DeviceType(SimulatorControlBase):
     @staticmethod
     def list_all() -> list["DeviceType"]:
         """Return all available device types."""
-        device_type_info = SimulatorControlBase.list_type(
-            SimulatorControlType.DEVICE_TYPE
-        )
+        device_type_info = SimulatorControlBase.list_type(SimulatorControlType.DEVICE_TYPE)
         return DeviceType.from_simctl_info(device_type_info)

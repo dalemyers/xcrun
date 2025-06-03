@@ -13,9 +13,7 @@ class DevicePair(SimulatorControlBase):
     watch_udid: str
     phone_udid: str
 
-    def __init__(
-        self, device_pair_identifier: str, device_pair_info: dict[str, Any]
-    ) -> None:
+    def __init__(self, device_pair_identifier: str, device_pair_info: dict[str, Any]) -> None:
         """Construct a DevicePair object from simctl output.
 
         device_pair_identifier: The unique identifier for this device pair.
@@ -64,7 +62,5 @@ class DevicePair(SimulatorControlBase):
     @staticmethod
     def list_all() -> list["DevicePair"]:
         """Return all available device pairs."""
-        device_pair_info = SimulatorControlBase.list_type(
-            SimulatorControlType.DEVICE_PAIR
-        )
+        device_pair_info = SimulatorControlBase.list_type(SimulatorControlType.DEVICE_PAIR)
         return DevicePair.from_simctl_info(device_pair_info)

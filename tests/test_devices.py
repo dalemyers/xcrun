@@ -42,18 +42,14 @@ class TestDevice(unittest.TestCase):
             if "tvOS" not in available_runtime.identifier:
                 return False
         else:
-            raise ValueError(
-                "Unexpected device type: " + available_device_type.identifier
-            )
+            raise ValueError("Unexpected device type: " + available_device_type.identifier)
 
         device_name = f"Test Device ({uuid.uuid4()})"
         state = "shutdown"
         availability = "(available)"
 
         try:
-            device = isim.Device.create(
-                device_name, available_device_type, available_runtime
-            )
+            device = isim.Device.create(device_name, available_device_type, available_runtime)
         except subprocess.CalledProcessError as ex:
             if ex.returncode in [isim.base_types.ErrorCodes.INCOMPATIBLE_DEVICE.value]:
                 # This was an incompatible pairing. That's fine since
@@ -69,9 +65,7 @@ class TestDevice(unittest.TestCase):
             device_name,
             f"Name did not match: {device.name}, {device_name}",
         )
-        self.assertEqual(
-            device.state.lower(), state, "Device was not shutdown as expected"
-        )
+        self.assertEqual(device.state.lower(), state, "Device was not shutdown as expected")
         if device.availability is not None:
             self.assertEqual(
                 device.availability.lower(),

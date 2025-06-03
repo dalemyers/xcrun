@@ -84,9 +84,7 @@ class Device(SimulatorControlBase):
 
         return self._device_type
 
-    def get_app_container(
-        self, app_identifier: str, container: str | None = None
-    ) -> str:
+    def get_app_container(self, app_identifier: str, container: str | None = None) -> str:
         """Get the path of the installed app's container."""
         command = f'get_app_container "{self.udid}" "{app_identifier}"'
 
@@ -124,9 +122,7 @@ class Device(SimulatorControlBase):
         # We sort these since we want the latest file (.0) first
         log_file_names = sorted(log_file_names)
 
-        container_pattern = re.compile(
-            f".*Data container for {app_identifier} is now at (.*)"
-        )
+        container_pattern = re.compile(f".*Data container for {app_identifier} is now at (.*)")
 
         # We are looking for the last match in the file
         for log_file in log_file_names:
@@ -270,9 +266,7 @@ class Device(SimulatorControlBase):
             watch = other_device
 
         if watch is None or phone is None:
-            raise InvalidDeviceError(
-                "One device should be a watch and the other a phone"
-            )
+            raise InvalidDeviceError("One device should be a watch and the other a phone")
 
         command = f'pair "{watch.udid}" "{phone.udid}"'
         pair_id = self._run_command(command)
@@ -359,15 +353,11 @@ class Device(SimulatorControlBase):
 
         # If we have more than one, we need a run time in order to differentate between them
         if runtime is None:
-            raise MultipleMatchesException(
-                "Multiple device matches, but no runtime supplied"
-            )
+            raise MultipleMatchesException("Multiple device matches, but no runtime supplied")
 
         # Get devices where the runtime name matches
         matching_devices = [
-            device
-            for device in matching_name_devices
-            if device[1] == runtime.identifier
+            device for device in matching_name_devices if device[1] == runtime.identifier
         ]
 
         if not matching_devices:
@@ -375,9 +365,7 @@ class Device(SimulatorControlBase):
 
         # We should only have one
         if len(matching_devices) > 1:
-            raise MultipleMatchesException(
-                "Multiple device matches even with runtime supplied"
-            )
+            raise MultipleMatchesException("Multiple device matches even with runtime supplied")
 
         return matching_devices[0][0]
 

@@ -77,9 +77,7 @@ def diagnose(
         raise FileExistsError("The output directory already exists")
 
     if os.path.exists(output_archive):
-        raise FileExistsError(
-            f'The output archive file already exists: "{output_archive}"'
-        )
+        raise FileExistsError(f'The output archive file already exists: "{output_archive}"')
 
     # I'm not entirely sure what the '-l' flag does. It's not documented, but if
     # I don't set it, the command just waits forever without doing anything.
