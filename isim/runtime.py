@@ -1,5 +1,6 @@
 """Handles the runtimes for simctl."""
 
+import json
 from typing import Any
 
 from isim.base_types import SimulatorControlBase, SimulatorControlType
@@ -78,3 +79,13 @@ class Runtime(SimulatorControlBase):
         """Return all available runtimes."""
         runtime_info = SimulatorControlBase.list_type(SimulatorControlType.RUNTIME)
         return Runtime.from_simctl_info(runtime_info)
+
+    @staticmethod
+    def list_disk_images() -> list[dict[str, Any]]:
+        """Return a list of disk images for runtimes."""
+        return list(json.loads(SimulatorControlBase.run_command("runtime list --json")).values())
+
+    @staticmethod
+    def delete_disk_image(udid: str) -> None:
+        """Delete a runtime by its UDID."""
+        SimulatorControlBase.run_command(f"runtime delete {udid}")
