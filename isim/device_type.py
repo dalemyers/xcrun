@@ -63,7 +63,9 @@ class DeviceType(SimulatorControlBase):
         raise DeviceTypeNotFoundError("No device type matching name: " + name)
 
     @staticmethod
-    def list_all() -> list["DeviceType"]:
+    def list_all(**kwargs) -> list["DeviceType"]:
         """Return all available device types."""
-        device_type_info = SimulatorControlBase.list_type(SimulatorControlType.DEVICE_TYPE)
+        device_type_info = SimulatorControlBase.list_type(
+            SimulatorControlType.DEVICE_TYPE, **kwargs
+        )
         return DeviceType.from_simctl_info(device_type_info)

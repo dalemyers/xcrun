@@ -33,15 +33,15 @@ class DevicePair(SimulatorControlBase):
         """Return the device representing the phone in the pair."""
         raise NotImplementedError("Function has not yet been implemented")
 
-    def unpair(self) -> None:
+    def unpair(self, **kwargs) -> None:
         """Unpair a watch and phone pair."""
         command = f'unpair "{self.identifier}"'
-        self._run_command(command)
+        self._run_command(command, **kwargs)
 
-    def activate(self) -> None:
+    def activate(self, **kwargs) -> None:
         """Activate a pair."""
         command = f'pair_activate "{self.identifier}"'
-        self._run_command(command)
+        self._run_command(command, **kwargs)
 
     def __str__(self) -> str:
         """Return the string representation of the object."""
@@ -60,7 +60,9 @@ class DevicePair(SimulatorControlBase):
         return device_pairs
 
     @staticmethod
-    def list_all() -> list["DevicePair"]:
+    def list_all(**kwargs) -> list["DevicePair"]:
         """Return all available device pairs."""
-        device_pair_info = SimulatorControlBase.list_type(SimulatorControlType.DEVICE_PAIR)
+        device_pair_info = SimulatorControlBase.list_type(
+            SimulatorControlType.DEVICE_PAIR, **kwargs
+        )
         return DevicePair.from_simctl_info(device_pair_info)

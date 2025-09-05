@@ -55,9 +55,9 @@ class SimulatorControlBase:
         self.raw_info = raw_info
         self.simctl_type = simctl_type
 
-    def _run_command(self, command: str) -> str:
+    def _run_command(self, command: str, **kwargs) -> str:
         """Convenience method for running an xcrun simctl command."""
-        return SimulatorControlBase.run_command(command)
+        return SimulatorControlBase.run_command(command, **kwargs)
 
     def __eq__(self, other: object) -> bool:
         """Override the default Equals behavior"""
@@ -75,7 +75,7 @@ class SimulatorControlBase:
         return not self.__eq__(other)
 
     @staticmethod
-    def run_command(command: str) -> str:
+    def run_command(command: str, **kwargs) -> str:
         """Run an xcrun simctl command."""
         full_command = f"xcrun simctl {command}"
         # Deliberately don't catch the exception - we want it to bubble up
@@ -85,10 +85,11 @@ class SimulatorControlBase:
             shell=True,
             check=True,
             stdout=subprocess.PIPE,
+            **kwargs,
         ).stdout
 
     @staticmethod
-    def list_type(item: SimulatorControlType) -> Any:
+    def list_type(item: SimulatorControlType, **kwargs) -> Any:
         """Run an `xcrun simctl` command with JSON output."""
         full_command = f"xcrun simctl list {item.list_key()} --json"
         # Deliberately don't catch the exception - we want it to bubble up
@@ -98,6 +99,7 @@ class SimulatorControlBase:
             shell=True,
             check=True,
             stdout=subprocess.PIPE,
+            **kwargs,
         ).stdout
 
         json_output = json.loads(output)

@@ -57,6 +57,7 @@ def diagnose(
     archive: bool = True,
     timeout: int = 300,
     udids: list[str] | str | None = None,
+    **kwargs,
 ) -> str:
     """Run the xcrun simctl diagnose command.
 
@@ -117,6 +118,7 @@ def diagnose(
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         check=True,
+        **kwargs,
     )
 
     return output_archive

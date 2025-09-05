@@ -88,14 +88,14 @@ class Device(SimulatorControlBase):
 
         return self._device_type
 
-    def get_app_container(self, app_identifier: str, container: str | None = None) -> str:
+    def get_app_container(self, app_identifier: str, container: str | None = None, **kwargs) -> str:
         """Get the path of the installed app's container."""
         command = f'get_app_container "{self.udid}" "{app_identifier}"'
 
         if container is not None:
             command += f' "{container}"'
 
-        path = self._run_command(command)
+        path = self._run_command(command, **kwargs)
 
         # The path has an extra new line at the end, so remove it when returning
         # pylint: disable=unsubscriptable-object
@@ -149,31 +149,31 @@ class Device(SimulatorControlBase):
 
         return None
 
-    def openurl(self, url: str) -> None:
+    def openurl(self, url: str, **kwargs) -> None:
         """Open the url on the device."""
         command = f'openurl "{self.udid}" "{url}"'
-        self._run_command(command)
+        self._run_command(command, **kwargs)
 
-    def logverbose(self, enable: bool) -> None:
+    def logverbose(self, enable: bool, **kwargs) -> None:
         """Enable or disable verbose logging."""
         command = f'logverbose "{self.udid}" "{"enable" if enable else "disable"}"'
-        self._run_command(command)
+        self._run_command(command, **kwargs)
 
-    def icloud_sync(self) -> None:
+    def icloud_sync(self, **kwargs) -> None:
         """Trigger iCloud sync."""
         command = f'icloud_sync "{self.udid}"'
-        self._run_command(command)
+        self._run_command(command, **kwargs)
 
-    def getenv(self, variable_name: str) -> str:
+    def getenv(self, variable_name: str, **kwargs) -> str:
         """Return the specified environment variable."""
         command = f'getenv "{self.udid}" "{variable_name}"'
-        variable = self._run_command(command)
+        variable = self._run_command(command, **kwargs)
         # The variable has an extra new line at the end, so remove it when returning
         # pylint: disable=unsubscriptable-object
         return variable[:-1]
         # pylint: enable=unsubscriptable-object
 
-    def addmedia(self, paths: str | list[str]) -> None:
+    def addmedia(self, paths: str | list[str], **kwargs) -> None:
         """Add photos, live photos, or videos to the photo library."""
         if isinstance(paths, str):
             paths = [paths]
@@ -188,71 +188,71 @@ class Device(SimulatorControlBase):
         paths_arg = " ".join(quoted_paths)
         command += paths_arg
 
-        self._run_command(command)
+        self._run_command(command, **kwargs)
 
-    def terminate(self, app_identifier: str) -> None:
+    def terminate(self, app_identifier: str, **kwargs) -> None:
         """Terminate an application by identifier."""
         command = f'terminate "{self.udid}" "{app_identifier}"'
-        self._run_command(command)
+        self._run_command(command, **kwargs)
 
-    def install(self, path: str) -> None:
+    def install(self, path: str, **kwargs) -> None:
         """Install an application from path."""
         command = f'install "{self.udid}" "{path}"'
-        self._run_command(command)
+        self._run_command(command, **kwargs)
 
-    def uninstall(self, app_identifier: str) -> None:
+    def uninstall(self, app_identifier: str, **kwargs) -> None:
         """Uninstall an application by identifier."""
         command = f'uninstall "{self.udid}" "{app_identifier}"'
-        self._run_command(command)
+        self._run_command(command, **kwargs)
 
-    def delete(self) -> None:
+    def delete(self, **kwargs) -> None:
         """Delete the device."""
         command = f'delete "{self.udid}"'
-        self._run_command(command)
+        self._run_command(command, **kwargs)
 
-    def rename(self, name: str) -> None:
+    def rename(self, name: str, **kwargs) -> None:
         """Rename the device."""
         command = f'rename "{self.udid}" "{name}"'
-        self._run_command(command)
+        self._run_command(command, **kwargs)
 
-    def boot(self) -> None:
+    def boot(self, **kwargs) -> None:
         """Boot the device."""
         command = f'boot "{self.udid}"'
-        self._run_command(command)
+        self._run_command(command, **kwargs)
 
-    def boot_status(self) -> None:
+    def boot_status(self, **kwargs) -> None:
         """Get the boot status of the device."""
         command = f'bootstatus "{self.udid}"'
-        self._run_command(command)
+        self._run_command(command, **kwargs)
 
-    def shutdown(self) -> None:
+    def shutdown(self, **kwargs) -> None:
         """Shutdown the device."""
         command = f'shutdown "{self.udid}"'
-        self._run_command(command)
+        self._run_command(command, **kwargs)
 
-    def erase(self) -> None:
+    def erase(self, **kwargs) -> None:
         """Erases the device's contents and settings."""
         command = f'erase "{self.udid}"'
-        self._run_command(command)
+        self._run_command(command, **kwargs)
 
-    def upgrade(self, runtime: Runtime) -> None:
+    def upgrade(self, runtime: Runtime, **kwargs) -> None:
         """Upgrade the device to a newer runtime."""
         command = f'upgrade "{self.udid}" "{runtime.identifier}"'
-        self._run_command(command)
+        self._run_command(command, **kwargs)
         self._runtime = None
         self.runtime_id = runtime.identifier
 
-    def clone(self, new_name: str) -> str:
+    def clone(self, new_name: str, **kwargs) -> str:
         """Clone the device."""
         command = f'clone "{self.udid}" "{new_name}"'
-        device_id = self._run_command(command)
+        device_id = self._run_command(command, **kwargs)
 
         # The device ID has a new line at the end. Strip it when returning.
         # pylint: disable=unsubscriptable-object
         return device_id[:-1]
         # pylint: enable=unsubscriptable-object
 
-    def pair(self, other_device: "Device") -> str:
+    def pair(self, other_device: "Device", **kwargs) -> str:
         """Create a new watch and phone pair."""
         watch = None
         phone = None
@@ -273,22 +273,22 @@ class Device(SimulatorControlBase):
             raise InvalidDeviceError("One device should be a watch and the other a phone")
 
         command = f'pair "{watch.udid}" "{phone.udid}"'
-        pair_id = self._run_command(command)
+        pair_id = self._run_command(command, **kwargs)
 
         # The pair ID has a new line at the end. Strip it when returning.
         # pylint: disable=unsubscriptable-object
         return pair_id[:-1]
         # pylint: enable=unsubscriptable-object
 
-    def screenshot(self, output_path: str) -> None:
+    def screenshot(self, output_path: str, **kwargs) -> None:
         """Take a screenshot of the device and save to `output_path`."""
 
         if os.path.exists(output_path):
             raise FileExistsError("Output file path already exists")
 
-        self._run_command(f"io {self.udid} screenshot {shlex.quote(output_path)}")
+        self._run_command(f"io {self.udid} screenshot {shlex.quote(output_path)}", **kwargs)
 
-    def start_video_recording(self, output_path: str, force: bool = True) -> None:
+    def start_video_recording(self, output_path: str, force: bool = True, **kwargs) -> None:
         """Start video recording of the device and save to `output_path`.
 
         If `force` is True, it will overwrite the file if it already exists.
@@ -312,6 +312,7 @@ class Device(SimulatorControlBase):
             stderr=subprocess.STDOUT,
             bufsize=1,
             encoding="utf-8",
+            **kwargs,
         )
 
         if not self._video_recording_process:
@@ -331,15 +332,15 @@ class Device(SimulatorControlBase):
         self._video_recording_process.wait()
         self._video_recording_process = None
 
-    def spawn(self, executable: str) -> str:
+    def spawn(self, executable: str, **kwargs) -> str:
         """Spawn a process by executing a given executable on a device."""
         command = f'spawn "{self.udid}" {executable}'
-        return self._run_command(command)
+        return self._run_command(command, **kwargs)
 
-    def launch(self, identifier: str) -> str:
+    def launch(self, identifier: str, **kwargs) -> str:
         """Launch an application by identifier on a device."""
         command = f'launch "{self.udid}" "{identifier}"'
-        return self._run_command(command)
+        return self._run_command(command, **kwargs)
 
     def __str__(self):
         """Return the string representation of the object."""
@@ -417,10 +418,10 @@ class Device(SimulatorControlBase):
         return matching_devices[0][0]
 
     @staticmethod
-    def create(name: str, device_type: DeviceType, runtime: Runtime) -> "Device":
+    def create(name: str, device_type: DeviceType, runtime: Runtime, **kwargs) -> "Device":
         """Create a new device."""
         command = f'create "{name}" {device_type.identifier} {runtime.identifier}'
-        device_id = SimulatorControlBase.run_command(command)
+        device_id = SimulatorControlBase.run_command(command, **kwargs)
 
         # The device ID has a new line at the end, so strip it.
         # pylint: disable=unsubscriptable-object
@@ -430,19 +431,19 @@ class Device(SimulatorControlBase):
         return Device.from_identifier(device_id)
 
     @staticmethod
-    def delete_unavailable() -> None:
+    def delete_unavailable(**kwargs) -> None:
         """Delete all unavailable devices."""
-        SimulatorControlBase.run_command("delete unavailable")
+        SimulatorControlBase.run_command("delete unavailable", **kwargs)
 
     @staticmethod
-    def delete_all() -> None:
+    def delete_all(**kwargs) -> None:
         """Delete all devices."""
-        SimulatorControlBase.run_command("delete all")
+        SimulatorControlBase.run_command("delete all", **kwargs)
 
     @staticmethod
-    def erase_all() -> None:
+    def erase_all(**kwargs) -> None:
         """Erase all devices."""
-        SimulatorControlBase.run_command("erase all")
+        SimulatorControlBase.run_command("erase all", **kwargs)
 
     @staticmethod
     def list_all() -> dict[str, list["Device"]]:
@@ -451,6 +452,6 @@ class Device(SimulatorControlBase):
         return Device.from_simctl_info(raw_info)
 
     @staticmethod
-    def list_all_raw() -> dict[str, list[dict[str, Any]]]:
+    def list_all_raw(**kwargs) -> dict[str, list[dict[str, Any]]]:
         """Return all device info."""
-        return SimulatorControlBase.list_type(SimulatorControlType.DEVICE)
+        return SimulatorControlBase.list_type(SimulatorControlType.DEVICE, **kwargs)
