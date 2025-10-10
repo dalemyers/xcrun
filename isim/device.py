@@ -63,6 +63,10 @@ class Device(SimulatorControlBase):
         self.state = device_info["state"]
         self.udid = device_info["udid"]
 
+    def __del__(self) -> None:
+        """Cleanup video recording process if still running when object is destroyed."""
+        self.stop_video_recording()
+
     def refresh_state(self) -> None:
         """Refreshes the state by consulting simctl."""
         device = Device.from_identifier(self.udid)
@@ -298,35 +302,40 @@ class Device(SimulatorControlBase):
 
         command.append(output_path)
 
-        self._video_recording_process = subprocess.Popen(
-            command,
-            text=True,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            bufsize=1,
-            encoding="utf-8",
-            **kwargs,
-        )
+        try:
+            self._video_recording_process = subprocess.Popen(
+                command,
+                universal_newlines=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT,
+                bufsize=1,
+                encoding="utf-8",
+                **kwargs,
+            )
 
-        if not self._video_recording_process:
-            raise ChildProcessError("Failed to start video recording process")
+            if not self._video_recording_process:
+                raise ChildProcessError("Failed to start video recording process")
 
-        if self._video_recording_process.stdout is None:
-            raise ChildProcessError("Failed to capture video recording process output")
+            if self._video_recording_process.stdout is None:
+                raise ChildProcessError("Failed to capture video recording process output")
 
-        for line in self._video_recording_process.stdout:
-            if "Recording started" in line:
-                return
+            for line in self._video_recording_process.stdout:
+                if "Recording started" in line:
+                    return
+        except Exception:
+            # Clean up the process if we failed to start recording
+            self.stop_video_recording()
+            raise
 
     def stop_video_recording(self) -> None:
         """Stop the video recording of the device."""
-        if self._video_recording_process is None:
-            raise RuntimeError("No video recording process is running")
-
-        self._video_recording_process.send_signal(signal.SIGINT)
-
-        self._video_recording_process.wait()
-        self._video_recording_process = None
+        if self._video_recording_process is not None:
+            try:
+                self._video_recording_process.send_signal(signal.SIGINT)
+                self._video_recording_process.wait(timeout=5)
+            except (ProcessLookupError, subprocess.TimeoutExpired):
+                pass
+            self._video_recording_process = None
 
     def spawn(self, executable: str, **kwargs) -> str:
         """Spawn a process by executing a given executable on a device."""
