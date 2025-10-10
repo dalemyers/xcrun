@@ -1,8 +1,11 @@
 """Handles simulator watch device pairs."""
 
+from __future__ import annotations
+
 from typing import Any
 
 from isim.base_types import SimulatorControlBase, SimulatorControlType
+from isim.device import Device
 
 
 class DevicePair(SimulatorControlBase):
@@ -25,13 +28,13 @@ class DevicePair(SimulatorControlBase):
         self.watch_udid = device_pair_info["watch"]["udid"]
         self.phone_udid = device_pair_info["phone"]["udid"]
 
-    def watch(self) -> None:
+    def watch(self) -> Device:
         """Return the device representing the watch in the pair."""
-        raise NotImplementedError("Function has not yet been implemented")
+        return Device.from_identifier(self.watch_udid)
 
-    def phone(self) -> None:
+    def phone(self) -> Device:
         """Return the device representing the phone in the pair."""
-        raise NotImplementedError("Function has not yet been implemented")
+        return Device.from_identifier(self.phone_udid)
 
     def unpair(self, **kwargs) -> None:
         """Unpair a watch and phone pair."""
