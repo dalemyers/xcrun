@@ -78,7 +78,7 @@ class SimulatorControlBase:
     @staticmethod
     def run_command(command: list[str] | str, **kwargs) -> str:
         """Run an xcrun simctl command.
-        
+
         Args:
             command: Either a list of command arguments (preferred) or a string that will be split.
         """
@@ -87,7 +87,7 @@ class SimulatorControlBase:
             full_command = ["xcrun", "simctl"] + shlex.split(command)
         else:
             full_command = ["xcrun", "simctl"] + command
-            
+
         # Deliberately don't catch the exception - we want it to bubble up
         return subprocess.run(
             full_command,

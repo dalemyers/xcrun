@@ -90,12 +90,12 @@ class Device(SimulatorControlBase):
     def get_app_container(self, app_identifier: str, container: str | None = None, **kwargs) -> str:
         """Get the path of the installed app's container."""
         command = ["get_app_container", self.udid, app_identifier]
-        
+
         if container is not None:
             command.append(container)
-        
+
         path = self._run_command(command, **kwargs)
-        
+
         # The path has an extra new line at the end, so remove it when returning
         # pylint: disable=unsubscriptable-object
         return path.rstrip('\n')
