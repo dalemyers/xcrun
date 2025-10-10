@@ -91,7 +91,7 @@ class SimulatorControlBase:
         # Deliberately don't catch the exception - we want it to bubble up
         return subprocess.run(
             full_command,
-            universal_newlines=True,
+            text=True,
             check=True,
             stdout=subprocess.PIPE,
             **kwargs,
@@ -104,7 +104,7 @@ class SimulatorControlBase:
         # Deliberately don't catch the exception - we want it to bubble up
         output = subprocess.run(
             full_command,
-            universal_newlines=True,
+            text=True,
             check=True,
             stdout=subprocess.PIPE,
             **kwargs,

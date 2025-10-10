@@ -300,7 +300,7 @@ class Device(SimulatorControlBase):
 
         self._video_recording_process = subprocess.Popen(
             command,
-            universal_newlines=True,
+            text=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.STDOUT,
             bufsize=1,

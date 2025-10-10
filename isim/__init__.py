@@ -110,7 +110,7 @@ def diagnose(
     # Let the exception bubble up
     _ = subprocess.run(
         full_command,
-        universal_newlines=True,
+        text=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         check=True,
