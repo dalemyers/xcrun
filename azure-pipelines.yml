@@ -4,14 +4,14 @@ jobs:
       vmImage: "macOS-latest"
     strategy:
       matrix:
-        Python3_8:
-          python.version: "3.8"
-        Python3_9:
-          python.version: "3.9"
         Python3_10:
           python.version: "3.10"
         Python3_11:
           python.version: "3.11"
+        Python3_12:
+          python.version: "3.12"
+        Python3_13:
+          python.version: "3.13"
       maxParallel: 4
 
     steps:

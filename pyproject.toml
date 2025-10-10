@@ -21,18 +21,17 @@ classifiers = [
     'License :: OSI Approved :: MIT License',
     'Operating System :: MacOS :: MacOS X',
     'Programming Language :: Python :: 3',
-    'Programming Language :: Python :: 3.7',
-    'Programming Language :: Python :: 3.8',
-    'Programming Language :: Python :: 3.9',
     'Programming Language :: Python :: 3.10',
     'Programming Language :: Python :: 3.11',
+    'Programming Language :: Python :: 3.12',
+    'Programming Language :: Python :: 3.13',
     'Topic :: Software Development :: Build Tools',
     'Topic :: Software Development :: Testing',
     'Topic :: Utilities',
 ]
 
 [tool.poetry.dependencies]
-python = "^3.11"
+python = "^3.10"
 
 [tool.poetry.dev-dependencies]
 black = "=25.1.0"
