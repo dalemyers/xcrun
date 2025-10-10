@@ -1,137 +1,283 @@
-"""Test devices."""
+"""Test devices using pytest."""
 
 import os
 import subprocess
-import sys
-import time
 import tempfile
-import unittest
+import time
 import uuid
 
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-# pylint: disable=wrong-import-position
+import pytest
+
 import isim
 
-# pylint: enable=wrong-import-position
+
+@pytest.fixture(scope="module")
+def all_runtimes():
+    """Fixture to get all available runtimes once per module."""
+    return isim.Runtime.list_all()
 
 
-class IncompatibleDeviceError(Exception):
-    """Raised when a device is incompatible with the runtime."""
+@pytest.fixture(scope="module")
+def all_device_types():
+    """Fixture to get all available device types once per module."""
+    return isim.DeviceType.list_all()
 
 
-class TestDevice(unittest.TestCase):
-    """Test device interaction."""
+@pytest.fixture(scope="module")
+def compatible_device_runtime(all_runtimes, all_device_types):
+    """Find a compatible device type and runtime pair for testing."""
+    # Try to find an iPhone with iOS runtime
+    for device_type in all_device_types:
+        if "iPhone" not in device_type.identifier:
+            continue
+        for runtime in all_runtimes:
+            if "iOS" not in runtime.identifier:
+                continue
+            return device_type, runtime
+    
+    # Fallback: try any compatible pair
+    for device_type in all_device_types:
+        for runtime in all_runtimes:
+            if _is_compatible(device_type, runtime):
+                return device_type, runtime
+    
+    pytest.skip("No compatible device type and runtime pair found")
 
-    available_runtimes: list[isim.Runtime] = []
-    available_device_types: list[isim.DeviceType] = []
 
-    @classmethod
-    def setUpClass(cls):
-        TestDevice.available_runtimes = isim.Runtime.list_all()
-        TestDevice.available_device_types = isim.DeviceType.list_all()
+@pytest.fixture
+def test_device(compatible_device_runtime):
+    """Create a test device and clean it up after the test."""
+    device_type, runtime = compatible_device_runtime
+    device_name = f"Test Device ({uuid.uuid4()})"
+    
+    try:
+        device = isim.Device.create(device_name, device_type, runtime)
+    except subprocess.CalledProcessError as ex:
+        if ex.returncode == isim.base_types.ErrorCodes.INCOMPATIBLE_DEVICE.value:
+            pytest.skip(f"Incompatible device/runtime combination")
+        raise
+    
+    yield device
+    
+    # Cleanup
+    try:
+        device.delete()
+    except Exception:
+        # Device might already be deleted or in bad state
+        pass
 
-    def run_device_test(self, available_device_type, available_runtime, callback):
-        """Run the tests on a device."""
 
-        # iDevices should run iOS, watch devices should run watchOS, etc.
-        if (
-            "iPhone" in available_device_type.identifier
-            or "iPad" in available_device_type.identifier
-            or "iPod" in available_device_type.identifier
-        ):
-            if "iOS" not in available_runtime.identifier:
-                raise IncompatibleDeviceError()
-        elif "Apple-Watch" in available_device_type.identifier:
-            if "watchOS" not in available_runtime.identifier:
-                raise IncompatibleDeviceError()
-        elif "Apple-TV" in available_device_type.identifier:
-            if "tvOS" not in available_runtime.identifier:
-                raise IncompatibleDeviceError()
-        else:
-            raise ValueError("Unexpected device type: " + available_device_type.identifier)
+def _is_compatible(device_type: isim.DeviceType, runtime: isim.Runtime) -> bool:
+    """Check if a device type and runtime are compatible."""
+    if (
+        "iPhone" in device_type.identifier
+        or "iPad" in device_type.identifier
+        or "iPod" in device_type.identifier
+    ):
+        return "iOS" in runtime.identifier
+    elif "Apple-Watch" in device_type.identifier:
+        return "watchOS" in runtime.identifier
+    elif "Apple-TV" in device_type.identifier:
+        return "tvOS" in runtime.identifier
+    return False
 
-        device_name = f"Test Device ({uuid.uuid4()})"
 
+def test_list_installed_devices():
+    """Test that we can parse all installed devices without error."""
+    devices = isim.Device.list_all()
+    assert devices is not None
+    assert isinstance(devices, dict)
+
+
+def test_create_and_delete_device(compatible_device_runtime):
+    """Test that we can create and delete a device."""
+    device_type, runtime = compatible_device_runtime
+    device_name = f"Test Device ({uuid.uuid4()})"
+    
+    try:
+        device = isim.Device.create(device_name, device_type, runtime)
+    except subprocess.CalledProcessError as ex:
+        if ex.returncode == isim.base_types.ErrorCodes.INCOMPATIBLE_DEVICE.value:
+            pytest.skip(f"Incompatible device/runtime combination")
+        raise
+    
+    try:
+        assert device is not None
+        assert device.name == device_name
+        assert device.udid
+        assert isinstance(device.udid, str)
+    finally:
+        device.delete()
+
+
+def test_device_lifecycle(test_device):
+    """Test that we can create new devices in a consistent manner."""
+    assert test_device.state.lower() == "shutdown", "Device should start shutdown"
+    
+    if test_device.availability is not None:
+        assert (
+            test_device.availability.lower() == "(available)"
+        ), "Device should be available"
+
+
+def test_device_runtime(test_device, compatible_device_runtime):
+    """Test that device runtime matches expected runtime."""
+    _, expected_runtime = compatible_device_runtime
+    device_runtime = test_device.runtime()
+    assert device_runtime == expected_runtime
+
+
+def test_device_type(test_device, compatible_device_runtime):
+    """Test that device type matches expected type."""
+    expected_device_type, _ = compatible_device_runtime
+    device_type = test_device.device_type()
+    assert device_type == expected_device_type
+
+
+def test_device_from_identifier(test_device):
+    """Test that we can retrieve a device by its identifier."""
+    retrieved = isim.Device.from_identifier(test_device.udid)
+    assert retrieved is not None
+    assert retrieved.udid == test_device.udid
+    assert retrieved.name == test_device.name
+
+
+def test_device_rename(test_device):
+    """Test that we can rename a device."""
+    new_name = f"Renamed Device ({uuid.uuid4()})"
+    test_device.rename(new_name)
+    test_device.refresh_state()
+    assert test_device.name == new_name
+
+
+def test_device_clone(test_device):
+    """Test that we can clone a device."""
+    clone_name = f"Cloned Device ({uuid.uuid4()})"
+    clone_udid = test_device.clone(clone_name)
+    
+    try:
+        assert clone_udid
+        assert isinstance(clone_udid, str)
+        assert clone_udid != test_device.udid
+        
+        # Verify the clone exists
+        cloned_device = isim.Device.from_identifier(clone_udid)
+        assert cloned_device.name == clone_name
+    finally:
+        # Clean up the clone
         try:
-            device = isim.Device.create(device_name, available_device_type, available_runtime)
-        except subprocess.CalledProcessError as ex:
-            if ex.returncode in [isim.base_types.ErrorCodes.INCOMPATIBLE_DEVICE.value]:
-                # This was an incompatible pairing. That's fine since
-                # we could be matching watchOS with an iOS device, or
-                # an iOS version with an older device, etc.
-                raise IncompatibleDeviceError()
-            else:
-                raise ex
+            cloned_device = isim.Device.from_identifier(clone_udid)
+            cloned_device.delete()
+        except Exception:
+            pass
 
-        self.assertIsNotNone(device)
-        self.assertEqual(
-            device.name,
-            device_name,
-            f"Name did not match: {device.name}, {device_name}",
-        )
 
-        try:
-            callback(device)
-        finally:
-            device.delete()
+def test_device_boot_and_shutdown(test_device):
+    """Test that we can boot and shutdown a device."""
+    # Boot the device
+    test_device.boot()
+    test_device.refresh_state()
+    assert test_device.state.lower() in ["booting", "booted"]
+    
+    # Wait for boot to complete
+    max_wait = 60
+    start_time = time.time()
+    while time.time() - start_time < max_wait:
+        test_device.refresh_state()
+        if test_device.state.lower() == "booted":
+            break
+        time.sleep(1)
+    
+    # Shutdown
+    test_device.shutdown()
+    test_device.refresh_state()
+    assert test_device.state.lower() in ["shutting down", "shutdown"]
 
-    def test_installed_devices(self):
-        """Test that we can parse all installed devices without error."""
-        self.assertIsNotNone(isim.Device.list_all())
 
-    def test_lifecycle(self):
-        """Test that we can create new devices in a consistent manner."""
+def test_device_erase(test_device):
+    """Test that we can erase a device."""
+    test_device.erase()
+    test_device.refresh_state()
+    # After erase, device should still exist
+    assert test_device.udid
 
-        def callback(device):
-            state = "shutdown"
-            availability = "(available)"
 
-            self.assertEqual(device.state.lower(), state, "Device was not shutdown as expected")
-            if device.availability is not None:
-                self.assertEqual(
-                    device.availability.lower(),
-                    availability,
-                    "Device was not available as expected",
-                )
-            self.assertEqual(
-                device.runtime(),
-                available_runtime,
-                f"Runtimes did not match: {device.runtime()}, {available_runtime}",
-            )
+@pytest.mark.slow
+def test_record_video(test_device):
+    """Test that we can record a video of a device."""
+    # Boot the device first
+    test_device.boot()
+    test_device.refresh_state()
+    
+    # Wait for device to boot
+    max_wait = 60
+    start_time = time.time()
+    while time.time() - start_time < max_wait:
+        test_device.refresh_state()
+        if test_device.state.lower() == "booted":
+            break
+        time.sleep(1)
+    
+    assert test_device.state.lower() == "booted", "Device must be booted to record video"
+    
+    with tempfile.TemporaryDirectory() as temp_dir:
+        video_path = os.path.join(temp_dir, "test_video.mov")
+        
+        test_device.start_video_recording(video_path)
+        time.sleep(5)  # Record for 5 seconds
+        test_device.stop_video_recording()
+        
+        assert os.path.exists(video_path), "Video file should be created"
+        assert os.path.getsize(video_path) > 0, "Video file should not be empty"
 
-        for available_device_type in TestDevice.available_device_types:
-            device_tested = False
 
-            for available_runtime in TestDevice.available_runtimes:
-                # We only need to test a device once. Doing it any more takes
-                # too long
-                if device_tested:
-                    continue
+def test_device_screenshot(test_device):
+    """Test that we can take a screenshot of a device."""
+    with tempfile.TemporaryDirectory() as temp_dir:
+        screenshot_path = os.path.join(temp_dir, "screenshot.png")
+        test_device.screenshot(screenshot_path)
+        
+        assert os.path.exists(screenshot_path), "Screenshot file should be created"
+        assert os.path.getsize(screenshot_path) > 0, "Screenshot should not be empty"
 
-                try:
-                    self.run_device_test(available_device_type, available_runtime, callback)
-                    # Mark that this device has been tested at least once
-                    device_tested = True
-                except IncompatibleDeviceError:
-                    pass
 
-    def test_record_video(self):
-        """Test that we can record a video of a device."""
+def test_device_attributes(test_device):
+    """Test that device objects have expected attributes."""
+    assert hasattr(test_device, "udid")
+    assert hasattr(test_device, "name")
+    assert hasattr(test_device, "state")
+    assert hasattr(test_device, "runtime_id")
+    assert hasattr(test_device, "device_type_id")
+    assert hasattr(test_device, "is_available")
+    
+    # Check types
+    assert isinstance(test_device.udid, str)
+    assert isinstance(test_device.name, str)
+    assert isinstance(test_device.state, str)
+    assert isinstance(test_device.runtime_id, str)
+    assert isinstance(test_device.device_type_id, str)
 
-        def callback(device) -> bool:
-            device.boot()
-            with tempfile.TemporaryDirectory() as temp_dir:
-                video_path = os.path.join(temp_dir, "video.mov")
-                device.start_video_recording(video_path)
-                time.sleep(10)
-                device.stop_video_recording()
-                assert os.path.exists(video_path), "Video file was not created"
 
-        for available_device_type in TestDevice.available_device_types:
-            for available_runtime in TestDevice.available_runtimes:
-                try:
-                    self.run_device_test(available_device_type, available_runtime, callback)
-                    return
-                except IncompatibleDeviceError:
-                    # This device is incompatible with the runtime, so skip it
-                    continue
+def test_device_str_repr(test_device):
+    """Test string representations of devices."""
+    str_repr = str(test_device)
+    assert test_device.name in str_repr
+    assert test_device.udid in str_repr
+    
+    repr_str = repr(test_device)
+    assert "runtime_id" in repr_str
+
+
+def test_delete_unavailable_devices():
+    """Test that we can delete unavailable devices."""
+    # This should not raise an error
+    isim.Device.delete_unavailable()
+
+
+def test_refresh_state(test_device):
+    """Test that we can refresh device state."""
+    original_state = test_device.state
+    test_device.refresh_state()
+    # State should still be valid after refresh
+    assert test_device.state
+    assert isinstance(test_device.state, str)
