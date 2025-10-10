@@ -318,6 +318,9 @@ class Device(SimulatorControlBase):
         if not self._video_recording_process:
             raise ChildProcessError("Failed to start video recording process")
 
+        if self._video_recording_process.stdout is None:
+            raise ChildProcessError("Failed to capture video recording process output")
+
         for line in self._video_recording_process.stdout:
             if "Recording started" in line:
                 return
