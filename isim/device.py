@@ -98,7 +98,7 @@ class Device(SimulatorControlBase):
         
         # The path has an extra new line at the end, so remove it when returning
         # pylint: disable=unsubscriptable-object
-        return path[:-1]
+        return path.rstrip('\n')
         # pylint: enable=unsubscriptable-object
 
     def get_data_directory(self, app_identifier: str) -> str | None:
@@ -169,7 +169,7 @@ class Device(SimulatorControlBase):
         variable = self._run_command(command, **kwargs)
         # The variable has an extra new line at the end, so remove it when returning
         # pylint: disable=unsubscriptable-object
-        return variable[:-1]
+        return variable.rstrip('\n')
         # pylint: enable=unsubscriptable-object
 
     def addmedia(self, paths: str | list[str], **kwargs) -> None:
@@ -242,7 +242,7 @@ class Device(SimulatorControlBase):
 
         # The device ID has a new line at the end. Strip it when returning.
         # pylint: disable=unsubscriptable-object
-        return device_id[:-1]
+        return device_id.rstrip('\n')
         # pylint: enable=unsubscriptable-object
 
     def pair(self, other_device: "Device", **kwargs) -> str:
@@ -270,7 +270,7 @@ class Device(SimulatorControlBase):
 
         # The pair ID has a new line at the end. Strip it when returning.
         # pylint: disable=unsubscriptable-object
-        return pair_id[:-1]
+        return pair_id.rstrip('\n')
         # pylint: enable=unsubscriptable-object
 
     def screenshot(self, output_path: str, **kwargs) -> None:
@@ -421,7 +421,7 @@ class Device(SimulatorControlBase):
 
         # The device ID has a new line at the end, so strip it.
         # pylint: disable=unsubscriptable-object
-        device_id = device_id[:-1]
+        device_id = device_id.rstrip('\n')
         # pylint: enable=unsubscriptable-object
 
         return Device.from_identifier(device_id)
