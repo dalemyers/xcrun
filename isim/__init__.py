@@ -1,7 +1,6 @@
 """Wrapper around `xcrun simctl`."""
 
 import os
-import shlex
 import subprocess
 
 from isim.device import Device, DeviceNotFoundError
@@ -90,7 +89,7 @@ def diagnose(
         "-l",
         "-b",
         f"--timeout={timeout}",
-        f"--output={shlex.quote(output_path)}",
+        f"--output={output_path}",
     ]
 
     if not archive:
@@ -108,13 +107,10 @@ def diagnose(
         else:
             full_command += [f"--udid={udid}" for udid in udids]
 
-    command_string = " ".join(full_command)
-
     # Let the exception bubble up
     _ = subprocess.run(
-        command_string,
+        full_command,
         universal_newlines=True,
-        shell=True,
         stdout=subprocess.PIPE,
         stderr=subprocess.STDOUT,
         check=True,

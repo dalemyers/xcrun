@@ -4,7 +4,6 @@
 
 import os
 import re
-import shlex
 import signal
 import subprocess
 from typing import Any, Optional
@@ -90,13 +89,13 @@ class Device(SimulatorControlBase):
 
     def get_app_container(self, app_identifier: str, container: str | None = None, **kwargs) -> str:
         """Get the path of the installed app's container."""
-        command = f'get_app_container "{self.udid}" "{app_identifier}"'
-
+        command = ["get_app_container", self.udid, app_identifier]
+        
         if container is not None:
-            command += f' "{container}"'
-
+            command.append(container)
+        
         path = self._run_command(command, **kwargs)
-
+        
         # The path has an extra new line at the end, so remove it when returning
         # pylint: disable=unsubscriptable-object
         return path[:-1]
@@ -151,22 +150,22 @@ class Device(SimulatorControlBase):
 
     def openurl(self, url: str, **kwargs) -> None:
         """Open the url on the device."""
-        command = f'openurl "{self.udid}" "{url}"'
+        command = ["openurl", self.udid, url]
         self._run_command(command, **kwargs)
 
     def logverbose(self, enable: bool, **kwargs) -> None:
         """Enable or disable verbose logging."""
-        command = f'logverbose "{self.udid}" "{"enable" if enable else "disable"}"'
+        command = ["logverbose", self.udid, "enable" if enable else "disable"]
         self._run_command(command, **kwargs)
 
     def icloud_sync(self, **kwargs) -> None:
         """Trigger iCloud sync."""
-        command = f'icloud_sync "{self.udid}"'
+        command = ["icloud_sync", self.udid]
         self._run_command(command, **kwargs)
 
     def getenv(self, variable_name: str, **kwargs) -> str:
         """Return the specified environment variable."""
-        command = f'getenv "{self.udid}" "{variable_name}"'
+        command = ["getenv", self.udid, variable_name]
         variable = self._run_command(command, **kwargs)
         # The variable has an extra new line at the end, so remove it when returning
         # pylint: disable=unsubscriptable-object
@@ -181,70 +180,64 @@ class Device(SimulatorControlBase):
         if not paths:
             return
 
-        command = f'addmedia "{self.udid}" '
-
-        # Now we need to add the paths
-        quoted_paths = ['"' + path + '"' for path in paths]
-        paths_arg = " ".join(quoted_paths)
-        command += paths_arg
-
+        command = ["addmedia", self.udid] + paths
         self._run_command(command, **kwargs)
 
     def terminate(self, app_identifier: str, **kwargs) -> None:
         """Terminate an application by identifier."""
-        command = f'terminate "{self.udid}" "{app_identifier}"'
+        command = ["terminate", self.udid, app_identifier]
         self._run_command(command, **kwargs)
 
     def install(self, path: str, **kwargs) -> None:
         """Install an application from path."""
-        command = f'install "{self.udid}" "{path}"'
+        command = ["install", self.udid, path]
         self._run_command(command, **kwargs)
 
     def uninstall(self, app_identifier: str, **kwargs) -> None:
         """Uninstall an application by identifier."""
-        command = f'uninstall "{self.udid}" "{app_identifier}"'
+        command = ["uninstall", self.udid, app_identifier]
         self._run_command(command, **kwargs)
 
     def delete(self, **kwargs) -> None:
         """Delete the device."""
-        command = f'delete "{self.udid}"'
+        command = ["delete", self.udid]
         self._run_command(command, **kwargs)
 
     def rename(self, name: str, **kwargs) -> None:
         """Rename the device."""
-        command = f'rename "{self.udid}" "{name}"'
+        command = ["rename", self.udid, name]
         self._run_command(command, **kwargs)
 
     def boot(self, **kwargs) -> None:
         """Boot the device."""
-        command = f'boot "{self.udid}"'
+        command = ["boot", self.udid]
         self._run_command(command, **kwargs)
 
     def boot_status(self, **kwargs) -> None:
         """Get the boot status of the device."""
-        command = f'bootstatus "{self.udid}"'
+        command = ["bootstatus", self.udid]
         self._run_command(command, **kwargs)
 
     def shutdown(self, **kwargs) -> None:
         """Shutdown the device."""
-        command = f'shutdown "{self.udid}"'
+        command = ["shutdown", self.udid]
         self._run_command(command, **kwargs)
 
     def erase(self, **kwargs) -> None:
         """Erases the device's contents and settings."""
-        command = f'erase "{self.udid}"'
+        command = ["erase", self.udid]
         self._run_command(command, **kwargs)
 
     def upgrade(self, runtime: Runtime, **kwargs) -> None:
         """Upgrade the device to a newer runtime."""
-        command = f'upgrade "{self.udid}" "{runtime.identifier}"'
+        command = ["upgrade", self.udid, runtime.identifier]
         self._run_command(command, **kwargs)
         self._runtime = None
         self.runtime_id = runtime.identifier
 
     def clone(self, new_name: str, **kwargs) -> str:
         """Clone the device."""
-        command = f'clone "{self.udid}" "{new_name}"'
+        command = ["clone", self.udid, new_name]
         device_id = self._run_command(command, **kwargs)
 
         # The device ID has a new line at the end. Strip it when returning.
@@ -272,7 +265,7 @@ class Device(SimulatorControlBase):
         if watch is None or phone is None:
             raise InvalidDeviceError("One device should be a watch and the other a phone")
 
-        command = f'pair "{watch.udid}" "{phone.udid}"'
+        command = ["pair", watch.udid, phone.udid]
         pair_id = self._run_command(command, **kwargs)
 
         # The pair ID has a new line at the end. Strip it when returning.
@@ -286,7 +279,7 @@ class Device(SimulatorControlBase):
         if os.path.exists(output_path):
             raise FileExistsError("Output file path already exists")
 
-        self._run_command(f"io {self.udid} screenshot {shlex.quote(output_path)}", **kwargs)
+        self._run_command(["io", self.udid, "screenshot", output_path], **kwargs)
 
     def start_video_recording(self, output_path: str, force: bool = True, **kwargs) -> None:
         """Start video recording of the device and save to `output_path`.
@@ -337,12 +330,12 @@ class Device(SimulatorControlBase):
 
     def spawn(self, executable: str, **kwargs) -> str:
         """Spawn a process by executing a given executable on a device."""
-        command = f'spawn "{self.udid}" {executable}'
+        command = ["spawn", self.udid, executable]
         return self._run_command(command, **kwargs)
 
     def launch(self, identifier: str, **kwargs) -> str:
         """Launch an application by identifier on a device."""
-        command = f'launch "{self.udid}" "{identifier}"'
+        command = ["launch", self.udid, identifier]
         return self._run_command(command, **kwargs)
 
     def __str__(self):
@@ -423,7 +416,7 @@ class Device(SimulatorControlBase):
     @staticmethod
     def create(name: str, device_type: DeviceType, runtime: Runtime, **kwargs) -> "Device":
         """Create a new device."""
-        command = f'create "{name}" {device_type.identifier} {runtime.identifier}'
+        command = ["create", name, device_type.identifier, runtime.identifier]
         device_id = SimulatorControlBase.run_command(command, **kwargs)
 
         # The device ID has a new line at the end, so strip it.
@@ -436,17 +429,17 @@ class Device(SimulatorControlBase):
     @staticmethod
     def delete_unavailable(**kwargs) -> None:
         """Delete all unavailable devices."""
-        SimulatorControlBase.run_command("delete unavailable", **kwargs)
+        SimulatorControlBase.run_command(["delete", "unavailable"], **kwargs)
 
     @staticmethod
     def delete_all(**kwargs) -> None:
         """Delete all devices."""
-        SimulatorControlBase.run_command("delete all", **kwargs)
+        SimulatorControlBase.run_command(["delete", "all"], **kwargs)
 
     @staticmethod
     def erase_all(**kwargs) -> None:
         """Erase all devices."""
-        SimulatorControlBase.run_command("erase all", **kwargs)
+        SimulatorControlBase.run_command(["erase", "all"], **kwargs)
 
     @staticmethod
     def list_all() -> dict[str, list["Device"]]:

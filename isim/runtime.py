@@ -84,10 +84,10 @@ class Runtime(SimulatorControlBase):
     def list_disk_images(**kwargs) -> list[dict[str, Any]]:
         """Return a list of disk images for runtimes."""
         return list(
-            json.loads(SimulatorControlBase.run_command("runtime list --json", **kwargs)).values()
+            json.loads(SimulatorControlBase.run_command(["runtime", "list", "--json"], **kwargs)).values()
         )
 
     @staticmethod
     def delete_disk_image(udid: str, **kwargs) -> None:
         """Delete a runtime by its UDID."""
-        SimulatorControlBase.run_command(f"runtime delete {udid}", **kwargs)
+        SimulatorControlBase.run_command(["runtime", "delete", udid], **kwargs)

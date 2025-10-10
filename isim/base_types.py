@@ -2,6 +2,7 @@
 
 import enum
 import json
+import shlex
 from typing import Any, Dict
 import subprocess
 
@@ -55,7 +56,7 @@ class SimulatorControlBase:
         self.raw_info = raw_info
         self.simctl_type = simctl_type
 
-    def _run_command(self, command: str, **kwargs) -> str:
+    def _run_command(self, command: list[str] | str, **kwargs) -> str:
         """Convenience method for running an xcrun simctl command."""
         return SimulatorControlBase.run_command(command, **kwargs)
 
@@ -75,14 +76,22 @@ class SimulatorControlBase:
         return not self.__eq__(other)
 
     @staticmethod
-    def run_command(command: str, **kwargs) -> str:
-        """Run an xcrun simctl command."""
-        full_command = f"xcrun simctl {command}"
+    def run_command(command: list[str] | str, **kwargs) -> str:
+        """Run an xcrun simctl command.
+        
+        Args:
+            command: Either a list of command arguments (preferred) or a string that will be split.
+        """
+        if isinstance(command, str):
+            # Support legacy string-based commands for backwards compatibility
+            full_command = ["xcrun", "simctl"] + shlex.split(command)
+        else:
+            full_command = ["xcrun", "simctl"] + command
+            
         # Deliberately don't catch the exception - we want it to bubble up
         return subprocess.run(
             full_command,
             universal_newlines=True,
-            shell=True,
             check=True,
             stdout=subprocess.PIPE,
             **kwargs,
@@ -91,12 +100,11 @@ class SimulatorControlBase:
     @staticmethod
     def list_type(item: SimulatorControlType, **kwargs) -> Any:
         """Run an `xcrun simctl` command with JSON output."""
-        full_command = f"xcrun simctl list {item.list_key()} --json"
+        full_command = ["xcrun", "simctl", "list", item.list_key(), "--json"]
         # Deliberately don't catch the exception - we want it to bubble up
         output = subprocess.run(
             full_command,
             universal_newlines=True,
-            shell=True,
             check=True,
             stdout=subprocess.PIPE,
             **kwargs,
