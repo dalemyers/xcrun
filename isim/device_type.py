@@ -1,5 +1,7 @@
 """Handles simulator device types."""
 
+from typing import Any
+
 from isim.base_types import SimulatorControlBase, SimulatorControlType
 
 
@@ -15,7 +17,7 @@ class DeviceType(SimulatorControlBase):
     identifier: str
     name: str
 
-    def __init__(self, device_type_info: dict[str, str]):
+    def __init__(self, device_type_info: dict[str, str]) -> None:
         """Construct a DeviceType object from simctl output.
 
         device_type_info: The dictionary representing the simctl output for a device type.
@@ -37,7 +39,7 @@ class DeviceType(SimulatorControlBase):
     @staticmethod
     def from_simctl_info(info: list[dict[str, str]]) -> list["DeviceType"]:
         """Create a new device type from the simctl info."""
-        device_types = []
+        device_types: list[DeviceType] = []
         for device_type_info in info:
             device_types.append(DeviceType(device_type_info))
         return device_types
@@ -63,7 +65,7 @@ class DeviceType(SimulatorControlBase):
         raise DeviceTypeNotFoundError("No device type matching name: " + name)
 
     @staticmethod
-    def list_all(**kwargs) -> list["DeviceType"]:
+    def list_all(**kwargs: Any) -> list["DeviceType"]:
         """Return all available device types."""
         device_type_info = SimulatorControlBase.list_type(
             SimulatorControlType.DEVICE_TYPE, **kwargs

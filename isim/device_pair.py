@@ -36,12 +36,12 @@ class DevicePair(SimulatorControlBase):
         """Return the device representing the phone in the pair."""
         return Device.from_identifier(self.phone_udid)
 
-    def unpair(self, **kwargs) -> None:
+    def unpair(self, **kwargs: Any) -> None:
         """Unpair a watch and phone pair."""
         command = ["unpair", self.identifier]
         self._run_command(command, **kwargs)
 
-    def activate(self, **kwargs) -> None:
+    def activate(self, **kwargs: Any) -> None:
         """Activate a pair."""
         command = ["pair_activate", self.identifier]
         self._run_command(command, **kwargs)
@@ -57,13 +57,13 @@ class DevicePair(SimulatorControlBase):
     @staticmethod
     def from_simctl_info(info: dict[str, Any]) -> list["DevicePair"]:
         """Create a new device pair using the info from simctl."""
-        device_pairs = []
+        device_pairs: list[DevicePair] = []
         for device_pair_identifier, device_pair_info in info.items():
             device_pairs.append(DevicePair(device_pair_identifier, device_pair_info))
         return device_pairs
 
     @staticmethod
-    def list_all(**kwargs) -> list["DevicePair"]:
+    def list_all(**kwargs: Any) -> list["DevicePair"]:
         """Return all available device pairs."""
         device_pair_info = SimulatorControlBase.list_type(
             SimulatorControlType.DEVICE_PAIR, **kwargs

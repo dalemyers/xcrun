@@ -2,11 +2,23 @@
 
 import os
 import subprocess
+from typing import Any
 
 from isim.device import Device, DeviceNotFoundError
 from isim.device_pair import DevicePair
 from isim.device_type import DeviceType, DeviceTypeNotFoundError
 from isim.runtime import Runtime, RuntimeNotFoundError
+
+__all__ = [
+    "Device",
+    "DeviceNotFoundError",
+    "DevicePair",
+    "DeviceType",
+    "DeviceTypeNotFoundError",
+    "Runtime",
+    "RuntimeNotFoundError",
+    "diagnose",
+]
 
 # Advanced:
 
@@ -56,7 +68,7 @@ def diagnose(
     archive: bool = True,
     timeout: int = 300,
     udids: list[str] | str | None = None,
-    **kwargs,
+    **kwargs: Any,
 ) -> str:
     """Run the xcrun simctl diagnose command.
 

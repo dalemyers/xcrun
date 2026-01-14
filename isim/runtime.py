@@ -50,7 +50,7 @@ class Runtime(SimulatorControlBase):
     @staticmethod
     def from_simctl_info(info: list[dict[str, Any]]) -> list["Runtime"]:
         """Create a runtime from the simctl info."""
-        runtimes = []
+        runtimes: list[Runtime] = []
         for runtime_info in info:
             runtimes.append(Runtime(runtime_info))
         return runtimes
@@ -75,13 +75,13 @@ class Runtime(SimulatorControlBase):
         raise RuntimeNotFoundError(f"Runtime not found for name: {name}")
 
     @staticmethod
-    def list_all(**kwargs) -> list["Runtime"]:
+    def list_all(**kwargs: Any) -> list["Runtime"]:
         """Return all available runtimes."""
         runtime_info = SimulatorControlBase.list_type(SimulatorControlType.RUNTIME, **kwargs)
         return Runtime.from_simctl_info(runtime_info)
 
     @staticmethod
-    def list_disk_images(**kwargs) -> list[dict[str, Any]]:
+    def list_disk_images(**kwargs: Any) -> list[dict[str, Any]]:
         """Return a list of disk images for runtimes."""
         return list(
             json.loads(
@@ -90,6 +90,6 @@ class Runtime(SimulatorControlBase):
         )
 
     @staticmethod
-    def delete_disk_image(udid: str, **kwargs) -> None:
+    def delete_disk_image(udid: str, **kwargs: Any) -> None:
         """Delete a runtime by its UDID."""
         SimulatorControlBase.run_command(["runtime", "delete", udid], **kwargs)

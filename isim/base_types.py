@@ -3,7 +3,7 @@
 import enum
 import json
 import shlex
-from typing import Any, Dict
+from typing import Any
 import subprocess
 
 
@@ -36,7 +36,7 @@ class SimulatorControlType(enum.Enum):
     DEVICE_TYPE = "device_type"
     DEVICE = "device"
 
-    def list_key(self):
+    def list_key(self) -> str:
         """Define the key passed into the list function for the type."""
         # Disable this false positive
         # pylint: disable=comparison-with-callable
@@ -49,14 +49,14 @@ class SimulatorControlType(enum.Enum):
 class SimulatorControlBase:
     """Types defined by simctl should inherit from this."""
 
-    raw_info: Dict[str, Any]
+    raw_info: dict[str, Any]
     simctl_type: SimulatorControlType
 
-    def __init__(self, raw_info: Dict[str, Any], simctl_type: SimulatorControlType) -> None:
+    def __init__(self, raw_info: dict[str, Any], simctl_type: SimulatorControlType) -> None:
         self.raw_info = raw_info
         self.simctl_type = simctl_type
 
-    def _run_command(self, command: list[str] | str, **kwargs) -> str:
+    def _run_command(self, command: list[str] | str, **kwargs: Any) -> str:
         """Convenience method for running an xcrun simctl command."""
         return SimulatorControlBase.run_command(command, **kwargs)
 
@@ -76,7 +76,7 @@ class SimulatorControlBase:
         return not self.__eq__(other)
 
     @staticmethod
-    def run_command(command: list[str] | str, **kwargs) -> str:
+    def run_command(command: list[str] | str, **kwargs: Any) -> str:
         """Run an xcrun simctl command.
         Args:
             command: Either a list of command arguments (preferred) or a string that will be split.
@@ -97,7 +97,7 @@ class SimulatorControlBase:
         ).stdout
 
     @staticmethod
-    def list_type(item: SimulatorControlType, **kwargs) -> Any:
+    def list_type(item: SimulatorControlType, **kwargs: Any) -> Any:
         """Run an `xcrun simctl` command with JSON output."""
         full_command = ["xcrun", "simctl", "list", item.list_key(), "--json"]
         # Deliberately don't catch the exception - we want it to bubble up
@@ -109,9 +109,9 @@ class SimulatorControlBase:
             **kwargs,
         ).stdout
 
-        json_output = json.loads(output)
+        json_output: dict[str, Any] = json.loads(output)
 
-        if not isinstance(json_output, dict):
+        if not isinstance(json_output, dict):  # pyright: ignore[reportUnnecessaryIsInstance]
             raise TypeError("Unexpected list type: " + str(type(json_output)))
 
         if not json_output.get(item.list_key()):
