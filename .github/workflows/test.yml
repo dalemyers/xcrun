@@ -1,0 +1,86 @@
+name: Test
+
+on:
+  push:
+    branches: [develop, main]
+  pull_request:
+    branches: [develop, main]
+
+jobs:
+  test:
+    runs-on: macos-latest
+    strategy:
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+      max-parallel: 4
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+          architecture: x64
+
+      - name: Show Xcode Versions
+        run: |
+          ls -al /Applications | grep -i xcode
+          echo "Current Xcode Version:"
+          xcode-select -p
+
+      - name: Install Poetry
+        run: curl -sSL https://install.python-poetry.org | python3 -
+
+      - name: Install dependencies
+        run: |
+          $HOME/.local/bin/poetry install
+
+      - name: Lint
+        run: |
+          poetry run pylint --rcfile=pylintrc isim tests
+
+      - name: Type Check (mypy)
+        run: |
+          poetry run mypy --ignore-missing-imports isim/ tests/
+
+      - name: Type Check (pyright)
+        run: |
+          poetry run pyright
+
+      - name: Run Black
+        run: |
+          poetry run black --check --line-length 100 isim tests
+
+      - name: pytest
+        run: |
+          poetry run pytest tests --cov=isim --cov-report html --cov-report xml --doctest-modules --junitxml=junit/test-results.xml
+
+      - name: Inline CSS
+        run: |
+          poetry run python inlinecss.py htmlcov
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test-results-${{ matrix.python-version }}
+          path: junit/test-results.xml
+
+      - name: Upload coverage report
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: coverage-report-${{ matrix.python-version }}
+          path: |
+            coverage.xml
+            htmlcov/
+
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v4
+        if: matrix.python-version == '3.13'
+        with:
+          file: ./coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+          fail_ci_if_error: false
