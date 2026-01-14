@@ -305,6 +305,7 @@ class Device(SimulatorControlBase):
         command.append(output_path)
 
         try:
+            # pylint: disable=consider-using-with
             self._video_recording_process = subprocess.Popen(
                 command,
                 universal_newlines=True,
@@ -314,6 +315,7 @@ class Device(SimulatorControlBase):
                 encoding="utf-8",
                 **kwargs,
             )
+            # pylint: enable=consider-using-with
 
             if not self._video_recording_process:
                 raise ChildProcessError("Failed to start video recording process")
@@ -386,11 +388,12 @@ class Device(SimulatorControlBase):
     def from_name(name: str, runtime: Runtime | None = None) -> Optional["Device"]:
         """Get a device from the existing devices using the name.
 
-        If the name matches multiple devices, the runtime is used as a secondary filter (if supplied).
-        If there are still multiple matching devices, an exception is raised.
+        If the name matches multiple devices, the runtime is used as a secondary filter (if
+        supplied). If there are still multiple matching devices, an exception is raised.
         """
 
-        # Only get the ones matching the name (keep track of the runtime_id in case there are multiple)
+        # Only get the ones matching the name (keep track of the runtime_id in case there are
+        # multiple)
         matching_name_devices: list[tuple[Device, str]] = []
 
         for runtime_id, runtime_devices in Device.list_all().items():
